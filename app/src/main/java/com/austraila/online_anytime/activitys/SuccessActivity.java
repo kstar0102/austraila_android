@@ -59,6 +59,10 @@ public class SuccessActivity extends AppCompatActivity {
         formid = intent.getStringExtra("FormId");
         upId = intent.getStringExtra("UpId");
 
+        if(upId == null){
+            upId = "0";
+        }
+
         for (Map.Entry<String, Bitmap> entry : FormActivity.elementSignature.entrySet()) {
             String key = entry.getKey();
             Bitmap value = entry.getValue();
@@ -148,6 +152,7 @@ public class SuccessActivity extends AppCompatActivity {
             {
                 formData.put("formId", formid);
                 formData.put("id", upId);
+                Log.e("formdata", formData.toString() );
                 return formData;
             }
         };
@@ -167,6 +172,7 @@ public class SuccessActivity extends AppCompatActivity {
         contentValues.put(ElementValueDatabaeHelper.VCOL_2, elementkye);
         contentValues.put(ElementValueDatabaeHelper.VCOL_3, elementValue);
         contentValues.put(ElementValueDatabaeHelper.VCOL_4, elementformid);
+        contentValues.put(ElementValueDatabaeHelper.VCOL_5, "generalData");
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
     }
 }

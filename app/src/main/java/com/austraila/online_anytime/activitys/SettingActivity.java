@@ -34,6 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.austraila.online_anytime.Common.Common;
 import com.austraila.online_anytime.LocalManage.DatabaseHelper;
+import com.austraila.online_anytime.LocalManage.ElementDatabaseHelper;
 import com.austraila.online_anytime.LocalManage.ElementValueDatabaeHelper;
 import com.austraila.online_anytime.R;
 import com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity;
@@ -59,13 +60,17 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
     TextView setting_name, setting_email,setting_time,sidemenu_email;
     ImageView side_menu_setting;
     Button sync_btn;
-    String useremail, username, userpass, token, result, formId,ElementValue, ElementId;
+    String useremail, username, userpass, token, result, formId,ElementValue, ElementId, Vid;
     RequestQueue queue;
+    boolean checksend = false;
     ArrayList<String> groupkeyList = new ArrayList<String>();
-    Map<String, List<String>> elementData = new HashMap<String, List<String>>();
     List<String> value = new ArrayList<String>();
     Map<String, Map<String, String>> elementdata = new HashMap<String, Map<String, String>>();
     Map<String, String> Data = new HashMap<String, String>();
+
+    List<String> Pvalue = new ArrayList<String>();
+    Map<String, Map<String, String>> Pelementdata = new HashMap<String, Map<String, String>>();
+    Map<String, String> PData = new HashMap<String, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,46 +86,6 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         db = openHelper.getWritableDatabase();
         VDb = ElementValueHelper.getReadableDatabase();
 
-        //get Form element data from local database.
-        try{final Cursor Vcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME,  null);
-        if(Vcursor != null){
-            if (Vcursor.moveToFirst()){
-                do{
-                    formId = Vcursor.getString(Vcursor.getColumnIndex("ElementFormId"));
-                    ElementId = Vcursor.getString(Vcursor.getColumnIndex("ElementId"));
-                    ElementValue = Vcursor.getString(Vcursor.getColumnIndex("ElementValue"));
-                    Data.put(ElementId,ElementValue);
-                    elementdata.put(formId, Data);
-                    value.add(formId);
-                }while(Vcursor.moveToNext());
-            }
-            Vcursor.close();
-        }}catch (Exception e){
-            AlertDialog alertDialog = new AlertDialog.Builder(SettingActivity.this).create();
-            alertDialog.setTitle("Catch the error");
-            alertDialog.setMessage("The setting add the Photo error:" + e.getMessage());
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
-        }
-
-        System.out.println(elementdata.get(formId));
-        Log.e("formlocaldata", elementdata.toString() );
-
-        for(int i = 0; i < value.size(); i++){
-            String key = value.get(i);
-            if(!groupkeyList.contains(key)){
-                groupkeyList.add(key);
-            }else{
-                continue;
-            }
-        }
-        System.out.println(groupkeyList);
-
         //get User information form local database.
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
         if(cursor != null){
@@ -133,6 +98,58 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                 }while(cursor.moveToNext());
             }
             cursor.close();
+        }
+
+        //get Form element data from local database.
+        final Cursor Vcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
+                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"generalData"});
+        if(Vcursor != null){
+            if (Vcursor.moveToFirst()){
+                do{
+                    formId = Vcursor.getString(Vcursor.getColumnIndex("ElementFormId"));
+                    ElementId = Vcursor.getString(Vcursor.getColumnIndex("ElementId"));
+                    ElementValue = Vcursor.getString(Vcursor.getColumnIndex("ElementValue"));
+                    Data.put(ElementId,ElementValue);
+                    elementdata.put(formId, Data);
+                    value.add(formId);
+                }while(Vcursor.moveToNext());
+            }
+            Vcursor.close();
+        }
+        Log.e("getdata from local",elementdata.toString() );
+
+        final Cursor Pcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
+                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"photoData"});
+        if(Pcursor != null){
+            if (Pcursor.moveToFirst()){
+                do{
+                    formId = Pcursor.getString(Pcursor.getColumnIndex("ElementFormId"));
+                    ElementId = Pcursor.getString(Pcursor.getColumnIndex("ElementId"));
+                    ElementValue = Pcursor.getString(Pcursor.getColumnIndex("ElementValue"));
+                    PData.put(ElementId,ElementValue);
+                    Pelementdata.put(formId, PData);
+
+                }while(Pcursor.moveToNext());
+            }
+            Pcursor.close();
+        }
+        Log.e("getphotodata from local",PData.toString() );
+
+        for(int i = 0; i < value.size(); i++){
+            String key = value.get(i);
+            if(!groupkeyList.contains(key)){
+                groupkeyList.add(key);
+            }else{
+                continue;
+            }
+        }
+
+        for(int i = 0; i < PData.size(); i++){
+            if(Vid == null){
+                PsendData(formId, "0");
+            }else {
+                PsendData(formId,Vid);
+            }
         }
 
         //define element
@@ -151,7 +168,10 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             public void onClick(View v) {
                 loading.setVisibility(View.VISIBLE);
                 for(int i = 0; i < groupkeyList.size(); i++){
-                    sendData(groupkeyList.get(i));
+                    sendData(groupkeyList.get(i), Vid);
+                }
+                if(checksend == true){
+                    VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
                 }
             }
         });
@@ -194,7 +214,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         navigationView.setItemIconTintList(null);
     }
 
-    private void sendData(final String formid) {
+    private void sendData(final String formid, final String id) {
         String url = Common.getInstance().getSaveUrl();
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -216,22 +236,78 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                                 String strDate = dateFormat.format(date);
                                 setting_time.setText(strDate);
 
-                                AlertDialog alertDialog = new AlertDialog.Builder(SettingActivity.this).create();
-                                alertDialog.setTitle("Notivce");
-                                alertDialog.setMessage("Data was transferred successfully.");
-                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                alertDialog.show();
+                                checksend = true;
                             } else {
                                 loading.setVisibility(View.GONE);
                                 Toast.makeText(SettingActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
                             }
                         } catch (JSONException e) {
-                            e.printStackTrace();
+//                            e.printStackTrace();
+                            loading.setVisibility(View.GONE);
+                            Toast.makeText(SettingActivity.this, "request faild", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        loading.setVisibility(View.GONE);
+                        System.out.println(error);
+                        checksend = false;
+                        Toast.makeText(SettingActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                    }
+                }){
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("token", token);
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+                elementdata.get(formid).put("formId", formid);
+                if(id == null){
+                    elementdata.get(formid).put("id", "0");
+                }else {
+                    elementdata.get(formid).put("id", id);
+                }
+                return elementdata.get(formid);
+            }
+        };
+
+        queue = Volley.newRequestQueue(SettingActivity.this);
+        queue.add(postRequest);
+    }
+
+    private void PsendData(final String formid,final String id) {
+        String url = Common.getInstance().getSaveUrl();
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println(response);
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            result = jsonObject.getString("success");
+                            if (result.equals("true")){
+                                loading.setVisibility(View.GONE);
+                                Vid = jsonObject.getString("id");
+                                Log.e("Vid value", Vid );
+
+                            } else {
+                                loading.setVisibility(View.GONE);
+                                Toast.makeText(SettingActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+//                            e.printStackTrace();
+                            loading.setVisibility(View.GONE);
+                            Log.e("send res okay",e.toString() );
+                            Toast.makeText(SettingActivity.this, "request faild", Toast.LENGTH_LONG).show();
                         }
                     }
                 },
@@ -254,13 +330,14 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             @Override
             protected Map<String, String> getParams()
             {
-                elementdata.get(formid).put("formId", formid);
-                return elementdata.get(formid);
+                PData.put("formId", formid);
+                PData.put("id", id);
+                return PData;
             }
         };
-//        postRequest.setRetryPolicy(new DefaultRetryPolicy(
-//                2500000, 0, 1f
-//        ));
+        postRequest.setRetryPolicy(new DefaultRetryPolicy(
+                2500000, 0, 1f
+        ));
         queue = Volley.newRequestQueue(SettingActivity.this);
         queue.add(postRequest);
     }

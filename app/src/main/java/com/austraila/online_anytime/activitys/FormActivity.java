@@ -923,7 +923,7 @@ public class FormActivity extends AppCompatActivity   {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void DateLint(String title, String id) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date();
         String dateTime = dateFormat.format(date);
 
@@ -956,7 +956,7 @@ public class FormActivity extends AppCompatActivity   {
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                dateEditText.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                                dateEditText.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
                             }
                         }, year, month, day);
                 picker.show();
@@ -1103,7 +1103,7 @@ public class FormActivity extends AppCompatActivity   {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItemText = (String) parent.getItemAtPosition(position);
-                element_data.put("element_" + dropid, String.valueOf(position));
+                element_data.put("element_" + dropid, String.valueOf(position + 1));
                 // Notify the selected item text
 //                Toast.makeText(getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT).show();
             }
@@ -1902,7 +1902,8 @@ public class FormActivity extends AppCompatActivity   {
         contentValues.put(ElementValueDatabaeHelper.VCOL_2, elementkye);
         contentValues.put(ElementValueDatabaeHelper.VCOL_3, elementValue);
         contentValues.put(ElementValueDatabaeHelper.VCOL_4, elementformid);
-        Log.e("insertdate", contentValues.toString() );
+        contentValues.put(ElementValueDatabaeHelper.VCOL_5, "photoData");
+        Log.e("contentdata", contentValues.toString() );
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
     }
 
