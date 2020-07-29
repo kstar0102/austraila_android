@@ -144,12 +144,16 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             }
         }
 
-        for(int i = 0; i < PData.size(); i++){
-            if(Vid == null){
-                PsendData(formId, "0");
-            }else {
-                PsendData(formId,Vid);
+        if(PData != null){
+            loading.setVisibility(View.VISIBLE);
+            for(int i = 0; i < PData.size(); i++){
+                if(Vid == null){
+                    PsendData(formId, "0");
+                }else {
+                    PsendData(formId,Vid);
+                }
             }
+            loading.setVisibility(View.GONE);
         }
 
         //define element

@@ -1,12 +1,19 @@
 package com.austraila.online_anytime.activitys;
 
 import android.content.ContentValues;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,17 +48,31 @@ import com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity;
 import com.austraila.online_anytime.adapter.CustomAdapter;
 import com.austraila.online_anytime.model.Listmodel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
+    ImageView reloadBtn;
     private DrawerLayout drawer;
     private NavigationView navigation;
     private SQLiteDatabase db,Db,EDb,ODb;
@@ -66,11 +87,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String useremail, result, checksum, token, userepass;
     CustomAdapter myAdapter;
     RequestQueue queue;
+    Uri imageInternalUri;
     ArrayList<String> listFormId = new ArrayList<String>();
     ArrayList<String> listFormDes = new ArrayList<String>();
     ArrayList<String> listFormtitle = new ArrayList<String>();
-    ImageView reloadBtn;
     ArrayList<String> data = new ArrayList<String>();
+    private AsyncTask mMyTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         result = jsonObject.getString("success");
                         if (result.equals("true")){
                             ElemnetList = jsonObject.getJSONArray("forms");
+
                             for(int j = 0; j < ElemnetList.length(); j++){
                                 insertElementData(ElemnetList.getJSONObject(j).getString("element_id")
                                         ,ElemnetList.getJSONObject(j).getString("element_title")
@@ -210,7 +233,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         ,ElemnetList.getJSONObject(j).getString("element_default_value")
                                         ,ElemnetList.getJSONObject(j).getString("element_constraint")
                                         ,ElemnetList.getJSONObject(j).getString("element_address_hideline2")
-                                        ,formId);
+                                        ,formId
+                                        ,ElemnetList.getJSONObject(j).getString("element_media_type")
+                                        ,ElemnetList.getJSONObject(j).getString("element_media_image_src")
+                                        ,ElemnetList.getJSONObject(j).getString("element_media_pdf_src"));
                             }
 
                         } else {
@@ -240,47 +266,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void elementOptionSave() {
-            StringRequest postRequest = new StringRequest(Request.Method.GET, Common.getInstance().getElemnetOptionUrl(), new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    JSONObject jsonObject = null;
-                    try {
-                        jsonObject = new JSONObject(response);
-                        result = jsonObject.getString("success");
-                        if (result.equals("true")){
-                            ElemnetOptionList = jsonObject.getJSONArray("forms");
-                            for(int j = 0; j < ElemnetOptionList.length(); j++){
+        StringRequest postRequest = new StringRequest(Request.Method.GET, Common.getInstance().getElemnetOptionUrl(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(response);
+                    result = jsonObject.getString("success");
+                    if (result.equals("true")){
+                        ElemnetOptionList = jsonObject.getJSONArray("forms");
+                        for(int j = 0; j < ElemnetOptionList.length(); j++){
 
-                                insertElementOptionData(ElemnetOptionList.getJSONObject(j).getString("form_id")
-                                        ,ElemnetOptionList.getJSONObject(j).getString("element_id")
-                                        ,ElemnetOptionList.getJSONObject(j).getString("option_id")
-                                        ,ElemnetOptionList.getJSONObject(j).getString("position")
-                                        ,ElemnetOptionList.getJSONObject(j).getString("option")
-                                        ,ElemnetOptionList.getJSONObject(j).getString("option_is_default"));
-                            }
-                        } else {
-                            Toast.makeText(MainActivity.this, "Oops, Request failed..", Toast.LENGTH_LONG).show();
+                            insertElementOptionData(ElemnetOptionList.getJSONObject(j).getString("form_id")
+                                    ,ElemnetOptionList.getJSONObject(j).getString("element_id")
+                                    ,ElemnetOptionList.getJSONObject(j).getString("option_id")
+                                    ,ElemnetOptionList.getJSONObject(j).getString("position")
+                                    ,ElemnetOptionList.getJSONObject(j).getString("option")
+                                    ,ElemnetOptionList.getJSONObject(j).getString("option_is_default"));
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Oops, Request failed..", Toast.LENGTH_LONG).show();
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    System.out.println(error);
-                    Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
-                }
-            }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("token", token);
-                    return headers;
-                }
-            };
-            queue = Volley.newRequestQueue(MainActivity.this);
-            queue.add(postRequest);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(error);
+                Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("token", token);
+                return headers;
+            }
+        };
+        queue = Volley.newRequestQueue(MainActivity.this);
+        queue.add(postRequest);
     }
 
     private void init() {
@@ -490,8 +516,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Db.insert(FormDatabaeHelper.FORMTABLE_NAME,null,contentValues);
     }
 
-    public void insertElementData(String element_id,String element_title, String element_guidelines, String element_type, String element_position, String element_page_number, String element_default_value, String element_constraint, String element_address_hideline2, String formid){
+    public void insertElementData(String element_id,String element_title, String element_guidelines
+            , String element_type, String element_position, String element_page_number, String element_default_value, String element_constraint
+            , String element_address_hideline2, String formid, String element_media_type, String element_media_image_src, String element_media_pdf_src){
         ContentValues contentValues = new ContentValues();
+        String Localurl = null;
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
+        if(element_media_image_src == "null" || element_media_image_src.isEmpty()) {
+            Log.e("null", "noimg" );
+            Log.e("null1", element_media_image_src );
+            contentValues.put(ElementDatabaseHelper.ECOL_13, "null");
+        }else {
+            Log.e("ii", "is int " );
+            Log.e("ii11", element_media_image_src );
+            InputStream in = null;
+            try
+            {
+                Log.i("URL", element_media_image_src);
+                URL url = new URL(element_media_image_src);
+                URLConnection urlConn = url.openConnection();
+                HttpURLConnection httpConn = (HttpURLConnection) urlConn;
+                httpConn.connect();
+
+                in = httpConn.getInputStream();
+            }
+            catch (MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            Bitmap bmpimg = BitmapFactory.decodeStream(in);
+            if (isExternalStorageWritable()) {
+                Localurl = saveImage(bmpimg);
+            }else{
+                //prompt the user or do something
+            }
+            contentValues.put(ElementDatabaseHelper.ECOL_13, Localurl);
+        }
+
+
         contentValues.put(ElementDatabaseHelper.ECOL_2, element_id);
         contentValues.put(ElementDatabaseHelper.ECOL_3, element_title);
         contentValues.put(ElementDatabaseHelper.ECOL_4, element_guidelines);
@@ -502,7 +573,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         contentValues.put(ElementDatabaseHelper.ECOL_9, element_constraint);
         contentValues.put(ElementDatabaseHelper.ECOL_10, element_address_hideline2);
         contentValues.put(ElementDatabaseHelper.ECOL_11, formid);
+        contentValues.put(ElementDatabaseHelper.ECOL_12, element_media_type);
+        contentValues.put(ElementDatabaseHelper.ECOL_14, element_media_pdf_src);
         EDb.insert(ElementDatabaseHelper.ElEMENTTABLE_NAME,null,contentValues);
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private String saveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fname = "Shutta_"+ timeStamp +".jpg";
+
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 20, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return String.valueOf(file);
     }
 
     public void insertElementOptionData(String form_id, String element_id, String option_id, String position, String option, String option_is_default){

@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.InputFilter;
@@ -81,7 +82,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -174,22 +181,23 @@ public class FormActivity extends AppCompatActivity   {
 
         if(intent.getStringExtra("url") != null){
             photoUri = intent.getStringExtra("url");
-                try {
-                    Map<String, String> selectedPhoto = new HashMap<String, String>();
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoUri));
-                    String image = "data:image/png;base64," + toBase64(bitmap);
-                    selectedPhoto.put(elementCameraId, image);
-                    if(FID == null){
-                        Log.e("Fid = 0  ", "FID" );
-                        sendcheck(selectedPhoto, "0");
-                    }else {
-                        Log.e("Fid = 1  ", FID );
-                        sendcheck(selectedPhoto, FID);
-                    }
-                    elementPhotos.put(elementCameraId, bitmap);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            Log.e("TAG", photoUri );
+            try {
+                Map<String, String> selectedPhoto = new HashMap<String, String>();
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoUri));
+                String image = "data:image/png;base64," + toBase64(bitmap);
+                selectedPhoto.put(elementCameraId, image);
+                if(FID == null){
+                    Log.e("Fid = 0  ", "FID" );
+                    sendcheck(selectedPhoto, "0");
+                }else {
+                    Log.e("Fid = 1  ", FID );
+                    sendcheck(selectedPhoto, FID);
                 }
+                elementPhotos.put(elementCameraId, bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         getfile = intent.getStringExtra("filepath");
@@ -236,6 +244,7 @@ public class FormActivity extends AppCompatActivity   {
                 max = groupkeyList.get(i);
             }
         }
+
 
         //show the element.
         showElement(checkpage);
@@ -289,7 +298,10 @@ public class FormActivity extends AppCompatActivity   {
                         NameLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "media":
-                        MediaLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        MediaLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id"))
+                                ,cursor.getString(cursor.getColumnIndex("element_media_type"))
+                                ,cursor.getString(cursor.getColumnIndex("element_media_image_src"))
+                                ,cursor.getString(cursor.getColumnIndex("element_media_pdf_src")));
                         break;
                     case "phone":
                         PhoneLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
@@ -695,11 +707,11 @@ public class FormActivity extends AppCompatActivity   {
                     emailElementArray.clear();
                 }
                 GetElementValue();
-        Intent intent = new Intent(FormActivity.this, SuccessActivity.class);
-        intent.putExtra("FormId", formid);
-        intent.putExtra("UpId", FID);
-        intent.putExtra("elementData", (Serializable) element_data);
-        startActivity(intent);
+                Intent intent = new Intent(FormActivity.this, SuccessActivity.class);
+                intent.putExtra("FormId", formid);
+                intent.putExtra("UpId", FID);
+                intent.putExtra("elementData", (Serializable) element_data);
+                startActivity(intent);
             }
         });
     }
@@ -1197,7 +1209,7 @@ public class FormActivity extends AppCompatActivity   {
         linearLayout.addView(numberEdit);
     }
 
-     private void MediaLint(String title, String id) {
+    private void MediaLint(String title, String id, String type, String imageSrc, String pdfSrc) {
         //define the element
         TextView mediaTitle = new TextView(this);
         ImageView mediaImage = new ImageView(this);
@@ -1214,7 +1226,14 @@ public class FormActivity extends AppCompatActivity   {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
         ParmsDescription.setMargins(50,0,50,5);
-        mediaImage.setImageResource(R.drawable.app_logo);
+        File imgFile = new  File(imageSrc);
+        Log.e("TAG", String.valueOf(imgFile));
+        if(imgFile.exists()){
+            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            mediaImage.setImageBitmap(myBitmap);
+        }
+//        mediaImage.setImageResource(R.drawable.app_logo);
+////
         mediaImage.setLayoutParams(ParmsDescription);
         linearLayout.addView(mediaImage);
     }
@@ -1583,9 +1602,9 @@ public class FormActivity extends AppCompatActivity   {
             radioButtonView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                int idx = radioGroup.indexOfChild(radioButtonView);
-                element_data.put("element_" + id, String.valueOf(idx));
-                Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
+                    int idx = radioGroup.indexOfChild(radioButtonView);
+                    element_data.put("element_" + id, String.valueOf(idx));
+                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
                 }
             });
             radioGroup.addView(radioButtonView, radiogroupparams);
@@ -1907,9 +1926,6 @@ public class FormActivity extends AppCompatActivity   {
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
     }
 
-//    private int uploadFile(String sourceFileUri){
-//        return serverResponseCode;
-//    }
 }
 
 
