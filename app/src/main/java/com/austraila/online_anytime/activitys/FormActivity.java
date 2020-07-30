@@ -6,7 +6,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,18 +13,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
-import android.icu.util.TimeUnit;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Parcelable;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.InputFilter;
@@ -34,7 +28,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -56,13 +49,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -77,24 +68,15 @@ import com.austraila.online_anytime.LocalManage.ElementOptionDatabaseHelper;
 import com.austraila.online_anytime.LocalManage.ElementValueDatabaeHelper;
 import com.austraila.online_anytime.R;
 import com.austraila.online_anytime.Common.AddPhotoBottomDialogFragment;
-import com.austraila.online_anytime.activitys.cameraActivity.CameraActivity;
 import com.austraila.online_anytime.activitys.signature.SignatureView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -112,8 +94,9 @@ public class FormActivity extends AppCompatActivity   {
     Bitmap photo,bitmap;
     CustomScrollview customScrollview;
     Cursor cursor;
+    int scrollY = 0;
     static public String elementCameraId, FID;
-    String  formid, formDes, formtitle, max, emailElementid, signauterElementid, getfile, photoUri, Token
+    String  formid, formDes, formtitle, max, emailElementid, getfile, photoUri, Token, scroll, page, camera
             , numberElementid, singleElementid, dateElementid
             , phone1, phone2, phone3, phoneElementid
             , price1, price2, priceElemnetid
@@ -125,6 +108,7 @@ public class FormActivity extends AppCompatActivity   {
     private SQLiteOpenHelper openHelper,ElementOptionopenHelper, ElementValueopenHeloer, TokenHelper;
     ArrayList<String> data = new ArrayList<String>();
     public int checkpage = 1;
+    private Uri imageUri, galleryUri;
     TextView next_btn;
 
     static Map<String, String> element_data = new HashMap<String, String>();
@@ -171,6 +155,21 @@ public class FormActivity extends AppCompatActivity   {
         formid = getIntent().getStringExtra("id");
         formDes = getIntent().getStringExtra("des");
         formtitle = getIntent().getStringExtra("title");
+        scroll = getIntent().getStringExtra("scroll");
+        page = getIntent().getStringExtra("page");
+        camera = getIntent().getStringExtra("camera");
+
+        if(camera != null){
+            ContentValues values = new ContentValues();
+            imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cInt.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(cInt,Image_Capture_Code);
+        }
+
+        if(scroll != null){
+            scrollY = Integer.parseInt(scroll);
+        }
 
         TextView title = findViewById(R.id.headerTitle);
         title.setText(formtitle);
@@ -184,10 +183,8 @@ public class FormActivity extends AppCompatActivity   {
         }
 
         System.out.println(FID);
-
         if(intent.getStringExtra("url") != null){
             photoUri = intent.getStringExtra("url");
-            Log.e("TAG", photoUri );
             try {
                 Map<String, String> selectedPhoto = new HashMap<String, String>();
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoUri));
@@ -206,8 +203,27 @@ public class FormActivity extends AppCompatActivity   {
             }
         }
 
-        getfile = intent.getStringExtra("filepath");
-        element_filePath.put(elementCameraId, getfile);
+        getfile = intent.getStringExtra("filestr");
+        if(getfile != null){
+            galleryUri = Uri.parse(getIntent().getStringExtra("filepath"));
+            try {
+                Map<String, String> selectedPhoto = new HashMap<String, String>();
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryUri);
+                elementPhotos.put(elementCameraId, bitmap);
+                String image = "data:image/png;base64," + toBase64(bitmap);
+                selectedPhoto.put(elementCameraId, image);
+                if(FID == null){
+                    Log.e("Fid = 0  ", "FID" );
+                    sendcheck(selectedPhoto, "0");
+                }else {
+                    Log.e("Fid = 1  ", FID );
+                    sendcheck(selectedPhoto, FID);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            element_filePath.put(elementCameraId, getfile);
+        }
 
         //go back button
         TextView backTextView = findViewById(R.id.back_textview);
@@ -245,15 +261,38 @@ public class FormActivity extends AppCompatActivity   {
         cursor.close();
 
         max = groupkeyList.get(0);
+        Log.e("asfd", max );
         for (int i = 1; i < groupkeyList.size(); i++) {
             if (Integer.parseInt(groupkeyList.get(i)) > Integer.parseInt(max)) {
                 max = groupkeyList.get(i);
             }
         }
 
-
         //show the element.
-        showElement(checkpage);
+        if(page != null){
+            showElement(Integer.parseInt(page));
+        }else {
+            showElement(checkpage);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Image_Capture_Code) {
+            if (resultCode == RESULT_OK) {
+                Intent intent = new Intent(FormActivity.this, FormActivity.class);
+                intent.putExtra("url", imageUri.toString());
+                intent.putExtra("id", formid);
+                intent.putExtra("des", formDes);
+                intent.putExtra("title", formtitle);
+                intent.putExtra("title", formtitle);
+                intent.putExtra("scroll", scroll);
+                intent.putExtra("page", page);
+                startActivity(intent);
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(FormActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     public String toBase64(Bitmap bitmap) {
@@ -266,7 +305,12 @@ public class FormActivity extends AppCompatActivity   {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void showElement(int i) {
         //Go top page on scrollview
-        customScrollview.fullScroll(CustomScrollview.FOCUS_UP);
+        customScrollview.post(new Runnable() {
+            @Override
+            public void run () {
+                customScrollview.scrollTo(0, scrollY);
+            }
+        });
 
         //make the Page title
         setTextTitle();
@@ -397,7 +441,7 @@ public class FormActivity extends AppCompatActivity   {
         titlelayout.setLayoutParams(titleParams);
 
         //define the radio group on matrix
-        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(750, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(900, LinearLayout.LayoutParams.WRAP_CONTENT);
         itemParams.setMargins(10,0,0,0);
         LinearLayout itemLayout = new LinearLayout(this);
         itemLayout.setLayoutParams(itemParams);
@@ -422,7 +466,7 @@ public class FormActivity extends AppCompatActivity   {
         LinearLayout empty = new LinearLayout(this);
         LinearLayout headtitle = new LinearLayout(this);
         LinearLayout.LayoutParams emptyParam = new LinearLayout.LayoutParams(
-                250, LinearLayout.LayoutParams.WRAP_CONTENT
+                350, LinearLayout.LayoutParams.WRAP_CONTENT
         );
         emptyParam.setMargins(10,0,0,0);
         empty.setLayoutParams(emptyParam);
@@ -909,10 +953,14 @@ public class FormActivity extends AppCompatActivity   {
         uploadbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                scrollY = customScrollview.getScrollY();
+                Log.e("scroll", String.valueOf(scrollY));
                 Bundle bundle = new Bundle();
                 bundle.putString("id", formid);
                 bundle.putString("formDes", formDes);
                 bundle.putString("formtitle", formtitle);
+                bundle.putString("scroll", String.valueOf(scrollY));
+                bundle.putString("page", String.valueOf(checkpage));
                 elementCameraId = "file" + "[element_" + id + "]";
                 GetElementValue();
                 AddPhotoBottomDialogFragment addPhotoBottomDialogFragment = AddPhotoBottomDialogFragment.newInstance();
@@ -929,12 +977,6 @@ public class FormActivity extends AppCompatActivity   {
 
         if(element_filePath.get("file" + "[element_" + id + "]") != null){
             photofilepath.setVisibility(View.VISIBLE);
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(getfile));
-                elementPhotos.put("file" + "[element_" + id + "]", bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             photofilepath.setText(getfile);
         }
     }
@@ -1084,7 +1126,8 @@ public class FormActivity extends AppCompatActivity   {
         ArrayList<String> dropList = new ArrayList<String>();
         Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME + " WHERE "
                 + ElementOptionDatabaseHelper.OCOL_2 + "=? AND "
-                + ElementOptionDatabaseHelper.OCOL_3 + "=? ORDER BY " + ElementOptionDatabaseHelper.OCOL_3 + " DESC" , new String[]{formid, id});
+                + ElementOptionDatabaseHelper.OCOL_3 + "=? ORDER BY "
+                + ElementOptionDatabaseHelper.OCOL_3 + " DESC" , new String[]{formid, id});
 
         if(cursor.moveToFirst()){
             do{
@@ -1216,6 +1259,7 @@ public class FormActivity extends AppCompatActivity   {
     }
 
     private void MediaLint(String title, String id, String type, String imageSrc, String pdfSrc) {
+
         //define the element
         TextView mediaTitle = new TextView(this);
         ImageView mediaImage = new ImageView(this);
@@ -1227,21 +1271,21 @@ public class FormActivity extends AppCompatActivity   {
         linearLayout.addView(mediaTitle);
 
         //set property the media imageview
-        if(type == "image"){
+        if(type.equals("image")){
             LinearLayout.LayoutParams ParmsDescription = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
             ParmsDescription.setMargins(50,0,50,5);
             File imgFile = new  File(imageSrc);
-            Log.e("TAG", String.valueOf(imgFile));
             if(imgFile.exists()){
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 mediaImage.setImageBitmap(myBitmap);
             }
             mediaImage.setLayoutParams(ParmsDescription);
             linearLayout.addView(mediaImage);
-        }else {
+        }
+        if(type.equals("pdf")) {
             LinearLayout.LayoutParams Parmsweb = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, 1000
             );
@@ -1253,7 +1297,6 @@ public class FormActivity extends AppCompatActivity   {
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.getSettings().setPluginState(WebSettings.PluginState.ON);
                 webView.setWebViewClient(new Callback());
-//            customScrollview.setEnableScrolling(false);
                 String pdf = pdfSrc;
                 webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + pdf);
                 linearLayout.addView(webView);
@@ -1267,6 +1310,7 @@ public class FormActivity extends AppCompatActivity   {
             }
         }
     }
+
     private class Callback extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(
@@ -1274,13 +1318,13 @@ public class FormActivity extends AppCompatActivity   {
             return(false);
         }
     }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 
     private void SectionBreak(String title, String des) {
         //define the element
@@ -1433,6 +1477,7 @@ public class FormActivity extends AppCompatActivity   {
                 emailElementArray.clear();
                 GetElementValue();
                 linearLayout.removeAllViewsInLayout();
+                checkpage = showcheckbtn +1;
                 showElement(showcheckbtn +1 );
             }
         });
@@ -1446,6 +1491,7 @@ public class FormActivity extends AppCompatActivity   {
                 emailElementArray.clear();
                 GetElementValue();
                 linearLayout.removeAllViewsInLayout();
+                checkpage = showcheckbtn +1;
                 showElement(showcheckbtn +1 );
                 System.out.println(element_data);
             }
@@ -1461,6 +1507,7 @@ public class FormActivity extends AppCompatActivity   {
                 emailElementArray.clear();
                 GetElementValue();
                 linearLayout.removeAllViewsInLayout();
+                checkpage = showcheckbtn - 1;
                 showElement(showcheckbtn - 1 );
             }
         });
@@ -1953,9 +2000,6 @@ public class FormActivity extends AppCompatActivity   {
                 return selectedPhoto;
             }
         };
-//        postRequest.setRetryPolicy(new DefaultRetryPolicy(
-//                2500000, 0, 1f
-//                ));
         queue = Volley.newRequestQueue(FormActivity.this);
         queue.add(postRequest);
     }
@@ -1966,11 +2010,6 @@ public class FormActivity extends AppCompatActivity   {
         contentValues.put(ElementValueDatabaeHelper.VCOL_3, elementValue);
         contentValues.put(ElementValueDatabaeHelper.VCOL_4, elementformid);
         contentValues.put(ElementValueDatabaeHelper.VCOL_5, "photoData");
-        Log.e("contentdata", contentValues.toString() );
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
     }
-
 }
-
-
-

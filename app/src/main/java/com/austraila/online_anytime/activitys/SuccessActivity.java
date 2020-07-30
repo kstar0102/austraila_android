@@ -58,7 +58,7 @@ public class SuccessActivity extends AppCompatActivity {
         System.out.println(formData);
         formid = intent.getStringExtra("FormId");
         upId = intent.getStringExtra("UpId");
-
+        Log.e("upId", upId );
         if(upId == null){
             upId = "0";
         }

@@ -171,8 +171,22 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             @Override
             public void onClick(View v) {
                 loading.setVisibility(View.VISIBLE);
-                for(int i = 0; i < groupkeyList.size(); i++){
-                    sendData(groupkeyList.get(i), Vid);
+                if(elementdata.isEmpty()){
+                    setting_email.setText(useremail);
+                    setting_name.setText(username);
+
+                    Date date = Calendar.getInstance().getTime();
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    String strDate = dateFormat.format(date);
+                    setting_time.setText(strDate);
+                    Toast.makeText(SettingActivity.this, "There are no data.", Toast.LENGTH_SHORT).show();
+                    loading.setVisibility(View.GONE);
+                }else {
+                    if(groupkeyList != null){
+                        for(int i = 0; i < groupkeyList.size(); i++){
+                            sendData(groupkeyList.get(i), Vid);
+                        }
+                    }
                 }
                 if(checksend == true){
                     VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);

@@ -1,7 +1,6 @@
 package com.austraila.online_anytime.activitys;
 
 import android.content.ContentValues;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -48,18 +47,15 @@ import com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity;
 import com.austraila.online_anytime.adapter.CustomAdapter;
 import com.austraila.online_anytime.model.Listmodel;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,12 +83,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String useremail, result, checksum, token, userepass;
     CustomAdapter myAdapter;
     RequestQueue queue;
-    Uri imageInternalUri;
     ArrayList<String> listFormId = new ArrayList<String>();
     ArrayList<String> listFormDes = new ArrayList<String>();
     ArrayList<String> listFormtitle = new ArrayList<String>();
     ArrayList<String> data = new ArrayList<String>();
-    private AsyncTask mMyTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fcursor.close();
         }
 
-
-
         reloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-//                                System.out.println(response);
                                 JSONObject jsonObject = null;
                                 try {
                                     jsonObject = new JSONObject(response);
@@ -309,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void init() {
-
         //Connect the Api
         String url = Common.getInstance().getMainItemUrl();
         StringRequest postRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -387,7 +377,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         queue = Volley.newRequestQueue(MainActivity.this);
         queue.add(postRequest);
-//        elementOptionSave();
     }
 
     private void sideMenu_mangement() {
@@ -557,14 +546,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             Bitmap bmpimg = BitmapFactory.decodeStream(in);
             if (isExternalStorageWritable()) {
-                Localurl = saveImage(bmpimg);
+                Localurl = saveImageExternal(bmpimg);
+                Log.e("UrlEx", Localurl );
             }else{
-                //prompt the user or do something
+                Localurl = saveImageInternal(bmpimg);
+                Log.e("UrlIn", Localurl );
             }
             contentValues.put(ElementDatabaseHelper.ECOL_13, Localurl);
         }
-
-        System.out.println(element_media_pdf_src);
 
         contentValues.put(ElementDatabaseHelper.ECOL_2, element_id);
         contentValues.put(ElementDatabaseHelper.ECOL_3, element_title);
@@ -590,10 +579,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private String saveImage(Bitmap finalBitmap) {
-
+    private String saveImageExternal(Bitmap finalBitmap) {
         String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/saved_images");
+        File myDir = new File(root + "/save_images");
+        myDir.mkdirs();
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fname = "Shutta_"+ timeStamp +".jpg";
+
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 20, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return String.valueOf(file);
+    }
+
+    private String saveImageInternal(Bitmap finalBitmap) {
+
+        String root = Environment.getDataDirectory().toString();
+        File myDir = new File(root + "/save_images");
         myDir.mkdirs();
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

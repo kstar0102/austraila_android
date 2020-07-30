@@ -15,20 +15,19 @@ import com.austraila.online_anytime.R;
 import com.austraila.online_anytime.activitys.FormActivity;
 
 public class CameraActivity extends AppCompatActivity {
-    private Button btnCapture;
-    private ImageView imgCapture;
     private Uri imageUri;
     public static final int Image_Capture_Code = 1;
-    String formid, formDes, formtitle;
+    String formid, formDes, formtitle, scroll, page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-//        Intent intent = getIntent();
         formid = getIntent().getStringExtra("id");
         formDes = getIntent().getStringExtra("des");
         formtitle = getIntent().getStringExtra("title");
+        scroll = getIntent().getStringExtra("scroll");
+        page = getIntent().getStringExtra("page");
 
         ContentValues values = new ContentValues();
         imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -46,6 +45,9 @@ public class CameraActivity extends AppCompatActivity {
                 intent.putExtra("id", formid);
                 intent.putExtra("des", formDes);
                 intent.putExtra("title", formtitle);
+                intent.putExtra("title", formtitle);
+                intent.putExtra("scroll", scroll);
+                intent.putExtra("page", page);
                 startActivity(intent);
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(CameraActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
