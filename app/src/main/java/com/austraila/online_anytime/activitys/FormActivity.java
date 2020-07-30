@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +18,8 @@ import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
 import android.icu.util.TimeUnit;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +35,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -383,7 +389,7 @@ public class FormActivity extends AppCompatActivity   {
         matrixLayout.setLayoutParams(matrixParams);
 
         // define the title field on matrix
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(500, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT);
         titleParams.setMargins(0,0,10,0);
         LinearLayout titlelayout = new LinearLayout(this);
         titlelayout.setOrientation(LinearLayout.VERTICAL);
@@ -391,7 +397,7 @@ public class FormActivity extends AppCompatActivity   {
         titlelayout.setLayoutParams(titleParams);
 
         //define the radio group on matrix
-        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(550, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(750, LinearLayout.LayoutParams.WRAP_CONTENT);
         itemParams.setMargins(10,0,0,0);
         LinearLayout itemLayout = new LinearLayout(this);
         itemLayout.setLayoutParams(itemParams);
@@ -416,7 +422,7 @@ public class FormActivity extends AppCompatActivity   {
         LinearLayout empty = new LinearLayout(this);
         LinearLayout headtitle = new LinearLayout(this);
         LinearLayout.LayoutParams emptyParam = new LinearLayout.LayoutParams(
-                450, LinearLayout.LayoutParams.WRAP_CONTENT
+                250, LinearLayout.LayoutParams.WRAP_CONTENT
         );
         emptyParam.setMargins(10,0,0,0);
         empty.setLayoutParams(emptyParam);
@@ -434,7 +440,7 @@ public class FormActivity extends AppCompatActivity   {
             for(int i = 0; i < matrixList.size(); i ++){
                 TextView itemtext = new TextView(this);
                 titleTextview(itemtext);
-                itemtext.setTextSize(getResources().getDimension(R.dimen.textsize_normal));
+                itemtext.setTextSize(getResources().getDimension(R.dimen.matrix_normal));
                 itemtext.setWidth(140);
                 itemtext.setText(matrixList.get(i));
                 headtitle.addView(itemtext);
@@ -466,7 +472,7 @@ public class FormActivity extends AppCompatActivity   {
                 public void onClick(View v) {
                     int idx = radioGroup.indexOfChild(radioButtonView);
                     element_data.put("element_" + id, String.valueOf(idx));
-                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -1176,7 +1182,7 @@ public class FormActivity extends AppCompatActivity   {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     element_data.put("element_" + id + "_" + String.valueOf(finalI+1), "1");
-                    Toast.makeText(FormActivity.this, checkBox.getText().toString(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(FormActivity.this, checkBox.getText().toString(), Toast.LENGTH_SHORT).show();
                 }
             });
             linearLayout.addView(checkBox);
@@ -1221,22 +1227,60 @@ public class FormActivity extends AppCompatActivity   {
         linearLayout.addView(mediaTitle);
 
         //set property the media imageview
-        LinearLayout.LayoutParams ParmsDescription = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        ParmsDescription.setMargins(50,0,50,5);
-        File imgFile = new  File(imageSrc);
-        Log.e("TAG", String.valueOf(imgFile));
-        if(imgFile.exists()){
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            mediaImage.setImageBitmap(myBitmap);
+        if(type == "image"){
+            LinearLayout.LayoutParams ParmsDescription = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            ParmsDescription.setMargins(50,0,50,5);
+            File imgFile = new  File(imageSrc);
+            Log.e("TAG", String.valueOf(imgFile));
+            if(imgFile.exists()){
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                mediaImage.setImageBitmap(myBitmap);
+            }
+            mediaImage.setLayoutParams(ParmsDescription);
+            linearLayout.addView(mediaImage);
+        }else {
+            LinearLayout.LayoutParams Parmsweb = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 1000
+            );
+            Parmsweb.setMargins(50,10,50,5);
+
+            WebView webView = new WebView(this);
+            webView.setLayoutParams(Parmsweb);
+            if(isNetworkAvailable()){
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+                webView.setWebViewClient(new Callback());
+//            customScrollview.setEnableScrolling(false);
+                String pdf = pdfSrc;
+                webView.loadUrl("https://drive.google.com/viewerng/viewer?embedded=true&url=" + pdf);
+                linearLayout.addView(webView);
+            }else {
+                TextView checknet = new TextView(this);
+                //set property the mediatitle
+                checknet.setText("It is offline now");
+                titleTextview(mediaTitle);
+                checknet.setTextSize(getResources().getDimension(R.dimen.textsize_normal));
+                linearLayout.addView(mediaTitle);
+            }
         }
-//        mediaImage.setImageResource(R.drawable.app_logo);
-////
-        mediaImage.setLayoutParams(ParmsDescription);
-        linearLayout.addView(mediaImage);
     }
+    private class Callback extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(
+                WebView view, String url) {
+            return(false);
+        }
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 
     private void SectionBreak(String title, String des) {
         //define the element
@@ -1604,7 +1648,7 @@ public class FormActivity extends AppCompatActivity   {
                 public void onClick(View v) {
                     int idx = radioGroup.indexOfChild(radioButtonView);
                     element_data.put("element_" + id, String.valueOf(idx));
-                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
                 }
             });
             radioGroup.addView(radioButtonView, radiogroupparams);
@@ -1801,7 +1845,7 @@ public class FormActivity extends AppCompatActivity   {
                 if(addressElement2 != null){
                     EditText ad2 = linearLayout.findViewWithTag(addressElement2);
                     if(ad2.getText().toString().equals("")){
-                        Toast.makeText(FormActivity.this, "Please enter a Address Line 2.", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(FormActivity.this, "Please enter a Address Line 2.", Toast.LENGTH_LONG).show();
                         return;
                     }
                     element_data.put(addressElement2, ad2.getText().toString());

@@ -238,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         ,ElemnetList.getJSONObject(j).getString("element_media_image_src")
                                         ,ElemnetList.getJSONObject(j).getString("element_media_pdf_src"));
                             }
-
                         } else {
                             Toast.makeText(MainActivity.this, "Oops, Request failed..", Toast.LENGTH_LONG).show();
                         }
@@ -337,13 +336,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             elementSave();
                             elementOptionSave();
                             ListviewManagement();
+
                             final Handler handler = new Handler();
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     loading.setVisibility(View.GONE);
                                 }
-                            }, 1000);
+                            }, 500);
                         }else {
                             ListviewManagement();
                             final Handler handler = new Handler();
@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 public void run() {
                                     loading.setVisibility(View.GONE);
                                 }
-                            }, 1000);
+                            }, 500);
                         }
                     } else {
                         ListviewManagement();
@@ -362,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             public void run() {
                                 loading.setVisibility(View.GONE);
                             }
-                        }, 1000);
+                        }, 500);
                         Toast.makeText(MainActivity.this, "Oops, can't login! please try to login again.", Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
@@ -443,7 +443,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void ListviewManagement() {
-
         final Cursor fcursor = Db.rawQuery("SELECT *FROM " + FormDatabaeHelper.FORMTABLE_NAME,  null);
 
         if (fcursor.moveToFirst()){
@@ -473,7 +472,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
             }
         });
-        loading.setVisibility(View.GONE);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loading.setVisibility(View.GONE);
+            }
+        }, 500);
     }
 
     private void setupSearchView()
@@ -518,7 +524,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void insertElementData(String element_id,String element_title, String element_guidelines
             , String element_type, String element_position, String element_page_number, String element_default_value, String element_constraint
-            , String element_address_hideline2, String formid, String element_media_type, String element_media_image_src, String element_media_pdf_src){
+            , String element_address_hideline2, String formid, String element_media_type, String element_media_image_src
+            , String element_media_pdf_src){
         ContentValues contentValues = new ContentValues();
         String Localurl = null;
 
@@ -528,16 +535,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if(element_media_image_src == "null" || element_media_image_src.isEmpty()) {
-            Log.e("null", "noimg" );
-            Log.e("null1", element_media_image_src );
             contentValues.put(ElementDatabaseHelper.ECOL_13, "null");
         }else {
-            Log.e("ii", "is int " );
-            Log.e("ii11", element_media_image_src );
             InputStream in = null;
             try
             {
-                Log.i("URL", element_media_image_src);
                 URL url = new URL(element_media_image_src);
                 URLConnection urlConn = url.openConnection();
                 HttpURLConnection httpConn = (HttpURLConnection) urlConn;
@@ -562,6 +564,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             contentValues.put(ElementDatabaseHelper.ECOL_13, Localurl);
         }
 
+        System.out.println(element_media_pdf_src);
 
         contentValues.put(ElementDatabaseHelper.ECOL_2, element_id);
         contentValues.put(ElementDatabaseHelper.ECOL_3, element_title);
