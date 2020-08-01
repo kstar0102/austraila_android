@@ -1,4 +1,4 @@
-#Thu Jul 30 22:01:48 JST 2020
+#Sat Aug 01 10:03:46 JST 2020
 base.0=F\:\\working\\now_working\\austraila_android\\app\\build\\intermediates\\dex\\debug\\out\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

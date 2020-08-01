@@ -12,6 +12,8 @@
     <string name="pass_hint">Password</string>
     <string name="login_button">SIGN IN</string>
     <string name="login_forget">Forget password?</string>
+    <string name="entry_info_login">Enter your Email and Password to login</string>
+    <string name="retry_info_login">Oops, can`t login! please try to login again.</string>
 
     <!--    forget page-->
     <string name="forget_button">FORGOT</string>
@@ -31,4 +33,7 @@
     <string name="bottom_sheet_option_heading">Add Photo</string>
 
     <string name="success">Success! Your submission has been saved!</string>
+    <string name="send_faild">It is currently offline. All data saved local stroage.</string>
+    <string name="offline_text">It is currently offline.</string>
+    <string name="noData_text">There are no data.</string>
 </resources>

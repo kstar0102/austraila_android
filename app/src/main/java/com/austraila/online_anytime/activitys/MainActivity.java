@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -171,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             public void onErrorResponse(VolleyError error) {
                                 loading.setVisibility(View.GONE);
                                 System.out.println(error);
-                                Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                             }
                         }){
                     @Override
@@ -240,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     System.out.println(error);
-                    Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                 }
             }){
                 @Override
@@ -285,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onErrorResponse(VolleyError error) {
                 System.out.println(error);
-                Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
             }
         }){
             @Override
@@ -365,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 loading.setVisibility(View.GONE);
                 ListviewManagement();
                 System.out.println(error);
-                Toast.makeText(MainActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
             }
         }){
             @Override
@@ -471,8 +469,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, 500);
     }
 
-    private void setupSearchView()
-    {
+    private void setupSearchView() {
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(this);
         searchView.setSubmitButtonEnabled(true);
@@ -480,8 +477,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onQueryTextChange(String newText)
-    {
+    public boolean onQueryTextChange(String newText) {
 
         if (TextUtils.isEmpty(newText)) {
             listView.clearTextFilter();

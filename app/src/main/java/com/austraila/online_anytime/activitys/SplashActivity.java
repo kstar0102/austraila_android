@@ -29,27 +29,20 @@ public class SplashActivity extends AppCompatActivity {
         openHelper = new DatabaseHelper(this);
         db = openHelper.getWritableDatabase();
 
-        String str = "<h5><b>If no internet connection is available your form will not Geo-Stamp. If no mobile sync, please ensure you complete the site location details</b></h5>";
-        Matcher m = Pattern.compile("<b>(.+?)</b>").matcher(str);
-        while(m.find()) {
-            String v = m.group(1);
-            System.out.println(v);
-        }
-
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
 
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(cursor.getCount() > 0){
-                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }else {
+//                if(cursor.getCount() > 0){
+//                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+//                    startActivity(intent);
+//                }else {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
-            }
+//            }
         }, 3000);
     }
 }

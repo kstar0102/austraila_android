@@ -179,7 +179,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     String strDate = dateFormat.format(date);
                     setting_time.setText(strDate);
-                    Toast.makeText(SettingActivity.this, "There are no data.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingActivity.this, getResources().getString(R.string.noData_text), Toast.LENGTH_SHORT).show();
                     loading.setVisibility(View.GONE);
                 }else {
                     if(groupkeyList != null){
@@ -272,7 +272,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                         loading.setVisibility(View.GONE);
                         System.out.println(error);
                         checksend = false;
-                        Toast.makeText(SettingActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SettingActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
 
@@ -334,7 +334,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                     public void onErrorResponse(VolleyError error) {
                         loading.setVisibility(View.GONE);
                         System.out.println(error);
-                        Toast.makeText(SettingActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SettingActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
 

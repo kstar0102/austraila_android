@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity{
                 Email = email.getText().toString().trim();
                 Pass = pass.getText().toString().trim();
                 if (Email.isEmpty() || Pass.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Enter your Email and Password to login", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.entry_info_login), Toast.LENGTH_SHORT).show();
                     return;
                 }else {
                     String url = Common.getInstance().getBaseURL();
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity{
                                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                             startActivity(intent);
                                         } else {
-                                            Toast.makeText(LoginActivity.this, "Oops, can't login! please try to login again.", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(LoginActivity.this, getResources().getString(R.string.retry_info_login), Toast.LENGTH_LONG).show();
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity{
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
                                     System.out.println(error);
-                                    Toast.makeText(LoginActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                                 }
                             }){
                         @Override

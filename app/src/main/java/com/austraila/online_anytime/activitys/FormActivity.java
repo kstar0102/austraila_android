@@ -20,6 +20,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.InputFilter;
@@ -89,6 +90,7 @@ import static com.austraila.online_anytime.activitys.cameraActivity.CameraActivi
 public class FormActivity extends AppCompatActivity   {
     RequestQueue queue;
     LinearLayout linearLayout;
+    RelativeLayout loading;
     DatePickerDialog picker;
     SignatureView signatureView;
     Bitmap photo,bitmap;
@@ -145,6 +147,7 @@ public class FormActivity extends AppCompatActivity   {
         customScrollview.setEnableScrolling(true);
 
         next_btn = findViewById(R.id.next_textBtn);
+        loading = findViewById(R.id.FloadingLayout);
 
         //define the main Layout
         linearLayout = findViewById(R.id.linear_layout);
@@ -184,6 +187,10 @@ public class FormActivity extends AppCompatActivity   {
 
         System.out.println(FID);
         if(intent.getStringExtra("url") != null){
+
+            final Handler handler = new Handler();
+            loading.setVisibility(View.VISIBLE);
+            customScrollview.setVisibility(View.GONE);
             photoUri = intent.getStringExtra("url");
             try {
                 Map<String, String> selectedPhoto = new HashMap<String, String>();
@@ -201,6 +208,7 @@ public class FormActivity extends AppCompatActivity   {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
 
         getfile = intent.getStringExtra("filestr");
@@ -1651,9 +1659,10 @@ public class FormActivity extends AppCompatActivity   {
     }
 
     private void MultipleChoice(String title, final String id) {
-        ArrayList<String> mylist = new ArrayList<String>();
 
-        Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME + " WHERE " + ElementOptionDatabaseHelper.OCOL_2 + "=? AND " + ElementOptionDatabaseHelper.OCOL_3 + "=?" , new String[]{formid, id});
+        ArrayList<String> mylist = new ArrayList<String>();
+        Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME + " WHERE "
+                + ElementOptionDatabaseHelper.OCOL_2 + "=? AND " + ElementOptionDatabaseHelper.OCOL_3 + "=?" , new String[]{formid, id});
 
         if(cursor.moveToFirst()){
             do{
@@ -1946,8 +1955,6 @@ public class FormActivity extends AppCompatActivity   {
     }
 
     private void sendcheck(final Map<String, String> selectedPhoto, final String Sid) {
-        final RelativeLayout loading = findViewById(R.id.FloadingLayout);
-        loading.setVisibility(View.VISIBLE);
         String url = Common.getInstance().getSaveUrl();
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -1960,8 +1967,9 @@ public class FormActivity extends AppCompatActivity   {
                             String result = jsonObject.getString("success");
                             if (result.equals("true")){
                                 loading.setVisibility(View.GONE);
+                                customScrollview.setVisibility(View.VISIBLE);
+
                                 FID = jsonObject.getString("id");
-                                System.out.println(FID);
                             } else {
                             }
                         } catch (JSONException e) {
@@ -1972,8 +1980,9 @@ public class FormActivity extends AppCompatActivity   {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        loading.setVisibility(View.GONE);
                         System.out.println(error);
+                        loading.setVisibility(View.GONE);
+                        customScrollview.setVisibility(View.VISIBLE);
                         selectedPhoto.put("formId", formid);
                         selectedPhoto.put("id", Sid);
                         for (Map.Entry<String, String> entry : selectedPhoto.entrySet()) {
@@ -1981,7 +1990,7 @@ public class FormActivity extends AppCompatActivity   {
                             String value = entry.getValue();
                             insertData(key, value, formid);
                         }
-                        Toast.makeText(FormActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(FormActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
 

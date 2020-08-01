@@ -1,7 +1,6 @@
 package com.austraila.online_anytime.activitys;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,12 +10,10 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
@@ -58,9 +55,11 @@ public class SuccessActivity extends AppCompatActivity {
         System.out.println(formData);
         formid = intent.getStringExtra("FormId");
         upId = intent.getStringExtra("UpId");
-        Log.e("upId", upId );
+
         if(upId == null){
             upId = "0";
+        }if(upId != null){
+            Log.e("upId", upId );
         }
 
         for (Map.Entry<String, Bitmap> entry : FormActivity.elementSignature.entrySet()) {
@@ -129,14 +128,14 @@ public class SuccessActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         System.out.println(error);
                         loading.setVisibility(View.GONE);
-                        textView.setText("It is currently offline. All data saved local stroage.");
+                        textView.setText(getResources().getString(R.string.send_faild));
                         for (Map.Entry<String, String> entry : formData.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();
                             FormActivity.elementPhotos.clear();
                             insertData(key, value, formid);
                         }
-                        Toast.makeText(SuccessActivity.this, "It is currently offline.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
 
