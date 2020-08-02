@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -14,9 +15,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -26,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.austraila.online_anytime.Common.Common;
 import com.austraila.online_anytime.LocalManage.DatabaseHelper;
 import com.austraila.online_anytime.LocalManage.ElementValueDatabaeHelper;
+import com.austraila.online_anytime.LocalManage.FormDatabaeHelper;
 import com.austraila.online_anytime.R;
 
 import org.json.JSONException;
@@ -39,10 +43,11 @@ public class SuccessActivity extends AppCompatActivity {
     private SQLiteDatabase db,VDb;
     private SQLiteOpenHelper openHelper,ElementValueopenHeloer;
     RequestQueue queue;
-    String Token, formid, upId;
+    String Token, formid, upId, Vid;
     TextView textView;
     RelativeLayout loading;
     HashMap<String, String> formData = new HashMap<String, String>();
+    HashMap<String, String> photoData = new HashMap<String, String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,15 +57,14 @@ public class SuccessActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         formData = (HashMap<String, String>)intent.getSerializableExtra("elementData");
-        System.out.println(formData);
         formid = intent.getStringExtra("FormId");
         upId = intent.getStringExtra("UpId");
 
         if(upId == null){
             upId = "0";
-        }if(upId != null){
-            Log.e("upId", upId );
         }
+
+        photoData = (HashMap<String, String>) FormActivity.elementPhotos_send;
 
         for (Map.Entry<String, Bitmap> entry : FormActivity.elementSignature.entrySet()) {
             String key = entry.getKey();
@@ -94,6 +98,7 @@ public class SuccessActivity extends AppCompatActivity {
             }
         });
         sendcheck();
+
     }
 
     private void sendcheck() {
@@ -109,8 +114,9 @@ public class SuccessActivity extends AppCompatActivity {
                             jsonObject = new JSONObject(response);
                             String result = jsonObject.getString("success");
                             if (result.equals("true")){
-                                loading.setVisibility(View.GONE);
-                                textView.setText(getResources().getString(R.string.success));
+                                Vid = jsonObject.getString("id");
+                                PsendData(Vid);
+                                Log.e("Vid value", Vid );
                                 FormActivity.elementPhotos.clear();
                                 FormActivity.elementSignature.clear();
                                 FormActivity.element_data.clear();
@@ -119,20 +125,22 @@ public class SuccessActivity extends AppCompatActivity {
                                 textView.setText("false");
                             }
                         } catch (JSONException e) {
+                            loading.setVisibility(View.GONE);
                             e.printStackTrace();
+                            Toast.makeText(SuccessActivity.this, "Request faild", Toast.LENGTH_LONG).show();
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        System.out.println(error);
+                        Log.e("senddata Error:", String.valueOf(error));
                         loading.setVisibility(View.GONE);
                         textView.setText(getResources().getString(R.string.send_faild));
                         for (Map.Entry<String, String> entry : formData.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();
-                            FormActivity.elementPhotos.clear();
+//                            FormActivity.elementPhotos.clear();
                             insertData(key, value, formid);
                         }
                         Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
@@ -151,7 +159,7 @@ public class SuccessActivity extends AppCompatActivity {
             {
                 formData.put("formId", formid);
                 formData.put("id", upId);
-                Log.e("formdata", formData.toString() );
+                Log.e("formdata:", String.valueOf(formData));
                 return formData;
             }
         };
@@ -159,9 +167,70 @@ public class SuccessActivity extends AppCompatActivity {
         queue.add(postRequest);
     }
 
+    private void PsendData(final String id) {
+        String url = Common.getInstance().getSaveUrl();
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println(response);
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            String result = jsonObject.getString("success");
+                            if (result.equals("true")){
+                                loading.setVisibility(View.GONE);
+                                FormActivity.elementPhotos_send.clear();
+                                FormActivity.elementPhotos.clear();
+                                VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
+                                textView.setText(getResources().getString(R.string.success));
+                            } else {
+                                loading.setVisibility(View.GONE);
+                                Toast.makeText(SuccessActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+//                            e.printStackTrace();
+                            loading.setVisibility(View.GONE);
+                            Log.e("send res okay",e.toString() );
+                            Toast.makeText(SuccessActivity.this, "request faild", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        loading.setVisibility(View.GONE);
+                        System.out.println(error);
+                        Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
+                    }
+                }){
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("token", Token);
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams()
+            {
+                photoData.put("formId", formid);
+                photoData.put("id", id);
+                return photoData;
+            }
+        };
+        postRequest.setRetryPolicy(new DefaultRetryPolicy(
+                2500000, 0, 1f
+        ));
+        queue = Volley.newRequestQueue(SuccessActivity.this);
+        queue.add(postRequest);
+    }
+
     public String toBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream .toByteArray();
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }

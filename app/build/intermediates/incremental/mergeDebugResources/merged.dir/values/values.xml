@@ -654,6 +654,7 @@
     <string name="common_signin_button_text_long">Sign in with Google</string>
     <string name="course"> My courses</string>
     <string name="email_hint">Email address</string>
+    <string name="entry_info_login">Enter your Email and Password to login</string>
     <string name="fab_transformation_scrim_behavior" translatable="false">com.google.android.material.transformation.FabTransformationScrimBehavior</string>
     <string name="fab_transformation_sheet_behavior" translatable="false">com.google.android.material.transformation.FabTransformationSheetBehavior</string>
     <string name="forget_button">FORGOT</string>
@@ -667,13 +668,17 @@
     <string name="logout">Log out</string>
     <string name="main_title">Form submission</string>
     <string name="mtrl_chip_close_icon_content_description">Remove %1$s</string>
+    <string name="noData_text">There are no data.</string>
+    <string name="offline_text">It is currently offline.</string>
     <string name="pass_hint">Password</string>
     <string name="password_toggle_content_description">Show password</string>
     <string name="path_password_eye" translatable="false">M12,4.5C7,4.5 2.73,7.61 1,12c1.73,4.39 6,7.5 11,7.5s9.27,-3.11 11,-7.5c-1.73,-4.39 -6,-7.5 -11,-7.5zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5zM12,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3 3,-1.34 3,-3 -1.34,-3 -3,-3z</string>
     <string name="path_password_eye_mask_strike_through" translatable="false">M2,4.27 L19.73,22 L22.27,19.46 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_eye_mask_visible" translatable="false">M2,4.27 L2,4.27 L4.54,1.73 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_strike_through" translatable="false">M3.27,4.27 L19.74,20.74</string>
+    <string name="retry_info_login">Oops, can`t login! please try to login again.</string>
     <string name="search_menu_title">Search</string>
+    <string name="send_faild">It is currently offline. All data saved local stroage.</string>
     <string name="setting">Setting</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="success">Success! Your submission has been saved!</string>

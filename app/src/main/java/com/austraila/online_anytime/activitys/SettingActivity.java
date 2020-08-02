@@ -101,8 +101,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         }
 
         //get Form element data from local database.
-        final Cursor Vcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
-                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"generalData"});
+        final Cursor Vcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME, null);
         if(Vcursor != null){
             if (Vcursor.moveToFirst()){
                 do{
@@ -116,24 +115,24 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             }
             Vcursor.close();
         }
-        Log.e("getdata from local",elementdata.toString() );
 
-        final Cursor Pcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
-                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"photoData"});
-        if(Pcursor != null){
-            if (Pcursor.moveToFirst()){
-                do{
-                    formId = Pcursor.getString(Pcursor.getColumnIndex("ElementFormId"));
-                    ElementId = Pcursor.getString(Pcursor.getColumnIndex("ElementId"));
-                    ElementValue = Pcursor.getString(Pcursor.getColumnIndex("ElementValue"));
-                    PData.put(ElementId,ElementValue);
-                    Pelementdata.put(formId, PData);
 
-                }while(Pcursor.moveToNext());
-            }
-            Pcursor.close();
-        }
-        Log.e("getphotodata from local",PData.toString() );
+//        final Cursor Pcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
+//                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"photoData"});
+//        if(Pcursor != null){
+//            if (Pcursor.moveToFirst()){
+//                do{
+//                    formId = Pcursor.getString(Pcursor.getColumnIndex("ElementFormId"));
+//                    ElementId = Pcursor.getString(Pcursor.getColumnIndex("ElementId"));
+//                    ElementValue = Pcursor.getString(Pcursor.getColumnIndex("ElementValue"));
+//                    PData.put(ElementId,ElementValue);
+//                    Pelementdata.put(formId, PData);
+//
+//                }while(Pcursor.moveToNext());
+//            }
+//            Pcursor.close();
+//        }
+//        Log.e("getphotodata from local",PData.toString() );
 
         for(int i = 0; i < value.size(); i++){
             String key = value.get(i);
@@ -142,18 +141,6 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             }else{
                 continue;
             }
-        }
-
-        if(PData != null){
-            loading.setVisibility(View.VISIBLE);
-            for(int i = 0; i < PData.size(); i++){
-                if(Vid == null){
-                    PsendData(formId, "0");
-                }else {
-                    PsendData(formId,Vid);
-                }
-            }
-            loading.setVisibility(View.GONE);
         }
 
         //define element
@@ -254,7 +241,8 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                                 String strDate = dateFormat.format(date);
                                 setting_time.setText(strDate);
 
-                                checksend = true;
+                                VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
+
                             } else {
                                 loading.setVisibility(View.GONE);
                                 Toast.makeText(SettingActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
@@ -287,70 +275,9 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             protected Map<String, String> getParams()
             {
                 elementdata.get(formid).put("formId", formid);
-                if(id == null){
-                    elementdata.get(formid).put("id", "0");
-                }else {
-                    elementdata.get(formid).put("id", id);
-                }
+                elementdata.get(formid).put("id", "0");
+                Log.e("getdata from local", String.valueOf(elementdata.get(formid)));
                 return elementdata.get(formid);
-            }
-        };
-
-        queue = Volley.newRequestQueue(SettingActivity.this);
-        queue.add(postRequest);
-    }
-
-    private void PsendData(final String formid,final String id) {
-        String url = Common.getInstance().getSaveUrl();
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
-                    @Override
-                    public void onResponse(String response) {
-                        System.out.println(response);
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-                            result = jsonObject.getString("success");
-                            if (result.equals("true")){
-                                loading.setVisibility(View.GONE);
-                                Vid = jsonObject.getString("id");
-                                Log.e("Vid value", Vid );
-
-                            } else {
-                                loading.setVisibility(View.GONE);
-                                Toast.makeText(SettingActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-//                            e.printStackTrace();
-                            loading.setVisibility(View.GONE);
-                            Log.e("send res okay",e.toString() );
-                            Toast.makeText(SettingActivity.this, "request faild", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        loading.setVisibility(View.GONE);
-                        System.out.println(error);
-                        Toast.makeText(SettingActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
-                    }
-                }){
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("token", token);
-                return headers;
-            }
-
-            @Override
-            protected Map<String, String> getParams()
-            {
-                PData.put("formId", formid);
-                PData.put("id", id);
-                return PData;
             }
         };
         postRequest.setRetryPolicy(new DefaultRetryPolicy(
@@ -359,7 +286,6 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         queue = Volley.newRequestQueue(SettingActivity.this);
         queue.add(postRequest);
     }
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {

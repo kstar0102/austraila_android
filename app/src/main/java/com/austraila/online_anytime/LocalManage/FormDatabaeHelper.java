@@ -21,7 +21,8 @@ public class FormDatabaeHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + FORMTABLE_NAME + " (FID INTEGER PRIMARY KEY AUTOINCREMENT,Ftitle TEXT,Ftitle_id TEXT,Fchecksum TEXT,form_description TEXT)");
+        db.execSQL("CREATE TABLE " + FORMTABLE_NAME + " (FID INTEGER PRIMARY KEY AUTOINCREMENT,Ftitle TEXT,Ftitle_id TEXT" +
+                ",Fchecksum TEXT,form_description TEXT)");
     }
 
     @Override

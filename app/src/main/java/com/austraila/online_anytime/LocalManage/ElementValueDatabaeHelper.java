@@ -19,7 +19,8 @@ public class ElementValueDatabaeHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + VTABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT,ElementId TEXT,ElementValue TEXT,ElementFormId TEXT,ElementType TEXT)");
+        db.execSQL("CREATE TABLE " + VTABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT,ElementId TEXT,ElementValue TEXT" +
+                ",ElementFormId TEXT,ElementType TEXT)");
     }
 
     @Override

@@ -1,8 +1,11 @@
 package com.austraila.online_anytime.Common;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import com.austraila.online_anytime.activitys.FormActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import static android.app.Activity.RESULT_OK;
+import static com.austraila.online_anytime.activitys.cameraActivity.CameraActivity.Image_Capture_Code;
 
 public class AddPhotoBottomDialogFragment extends BottomSheetDialogFragment{
     TextView photoIcon, localIcon;
@@ -37,24 +41,20 @@ public class AddPhotoBottomDialogFragment extends BottomSheetDialogFragment{
         photoIcon = view.findViewById(R.id.tv_btn_add_photo_camera);
         localIcon = view.findViewById(R.id.tv_btn_add_photo_gallery);
 
+        final FormActivity current = ((FormActivity)getActivity());
+
         photoIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), FormActivity.class);
-                intent.putExtra("camera", "camera");
-                intent.putExtra("id", strtext);
-                intent.putExtra("des", formDes);
-                intent.putExtra("title", formtitle);
-                intent.putExtra("scroll", scroll);
-                intent.putExtra("page", page);
-                startActivity(intent);
-                dismiss();
+                current.cameraOpen();
+                current.GetElementValue();
             }
         });
 
         localIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                current.GetElementValue();
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -79,6 +79,7 @@ public class AddPhotoBottomDialogFragment extends BottomSheetDialogFragment{
             intent.putExtra("id", strtext);
             intent.putExtra("des", formDes);
             intent.putExtra("title", formtitle);
+            intent.putExtra("scroll", scroll);
             startActivity(intent);
         }
     }

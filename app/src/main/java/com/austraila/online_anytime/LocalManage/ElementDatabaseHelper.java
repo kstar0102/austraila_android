@@ -33,7 +33,8 @@ public class ElementDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + ElEMENTTABLE_NAME + " (EID INTEGER PRIMARY KEY AUTOINCREMENT,element_id TEXT,element_title TEXT,element_guidelines TEXT" +
                 ",element_type TEXT,element_position TEXT,element_page_number TEXT,element_default_value TEXT" +
-                ",element_constraint TEXT, element_address_hideline2 TEXT ,formid TEXT,element_media_type TEXT,element_media_image_src TEXT,element_media_pdf_src TEXT)");
+                ",element_constraint TEXT, element_address_hideline2 TEXT ,formid TEXT,element_media_type TEXT" +
+                ",element_media_image_src TEXT,element_media_pdf_src TEXT)");
     }
 
     @Override

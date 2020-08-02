@@ -23,7 +23,8 @@ public class ElementOptionDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + OPTIONTABLE_NAME + " (OID INTEGER PRIMARY KEY AUTOINCREMENT,OFormId TEXT,OElementId TEXT,OOptionId TEXT,OPosition TEXT,OOption TEXT,Ooption_is_default TEXT)");
+        db.execSQL("CREATE TABLE " + OPTIONTABLE_NAME + " (OID INTEGER PRIMARY KEY AUTOINCREMENT,OFormId TEXT,OElementId TEXT" +
+                ",OOptionId TEXT,OPosition TEXT,OOption TEXT,Ooption_is_default TEXT)");
     }
 
     @Override

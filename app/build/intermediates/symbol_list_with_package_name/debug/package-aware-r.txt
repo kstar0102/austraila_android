@@ -1616,6 +1616,7 @@ string common_signin_button_text
 string common_signin_button_text_long
 string course
 string email_hint
+string entry_info_login
 string fab_transformation_scrim_behavior
 string fab_transformation_sheet_behavior
 string forget_button
@@ -1629,13 +1630,17 @@ string login_forget
 string logout
 string main_title
 string mtrl_chip_close_icon_content_description
+string noData_text
+string offline_text
 string pass_hint
 string password_toggle_content_description
 string path_password_eye
 string path_password_eye_mask_strike_through
 string path_password_eye_mask_visible
 string path_password_strike_through
+string retry_info_login
 string search_menu_title
+string send_faild
 string setting
 string status_bar_notification_info_overflow
 string success

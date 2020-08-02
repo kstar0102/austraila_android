@@ -94,11 +94,11 @@ public class FormActivity extends AppCompatActivity   {
     DatePickerDialog picker;
     SignatureView signatureView;
     Bitmap photo,bitmap;
-    CustomScrollview customScrollview;
+    public CustomScrollview customScrollview;
     Cursor cursor;
-    int scrollY = 0;
+    public static int scrollY;
     static public String elementCameraId, FID;
-    String  formid, formDes, formtitle, max, emailElementid, getfile, photoUri, Token, scroll, page, camera
+    String  formid, formDes, formtitle, max, emailElementid, getfile, photoUri, Token, scroll, scrollphoto, page, camera
             , numberElementid, singleElementid, dateElementid
             , phone1, phone2, phone3, phoneElementid
             , price1, price2, priceElemnetid
@@ -108,6 +108,7 @@ public class FormActivity extends AppCompatActivity   {
 
     private SQLiteDatabase db,ODb,VDb, Tdb;
     private SQLiteOpenHelper openHelper,ElementOptionopenHelper, ElementValueopenHeloer, TokenHelper;
+
     ArrayList<String> data = new ArrayList<String>();
     public int checkpage = 1;
     private Uri imageUri, galleryUri;
@@ -116,6 +117,7 @@ public class FormActivity extends AppCompatActivity   {
     static Map<String, String> element_data = new HashMap<String, String>();
     static Map<String, String> element_filePath = new HashMap<String, String>();
     static Map<String, Bitmap> elementPhotos = new HashMap<String, Bitmap>();
+    static Map<String, String> elementPhotos_send = new HashMap<String, String>();
     static Map<String, Bitmap> elementSignature = new HashMap<String, Bitmap>();
     static Map<String, SignatureView> signEles = new HashMap<String, SignatureView>();
 
@@ -143,7 +145,7 @@ public class FormActivity extends AppCompatActivity   {
         VDb = ElementValueopenHeloer.getWritableDatabase();
 
         //define the custom Scroll.
-        customScrollview = (CustomScrollview) findViewById(R.id.scrollmain);
+        customScrollview = findViewById(R.id.scrollmain);
         customScrollview.setEnableScrolling(true);
 
         next_btn = findViewById(R.id.next_textBtn);
@@ -159,20 +161,15 @@ public class FormActivity extends AppCompatActivity   {
         formDes = getIntent().getStringExtra("des");
         formtitle = getIntent().getStringExtra("title");
         scroll = getIntent().getStringExtra("scroll");
+        scrollphoto = getIntent().getStringExtra("scrollphoto");
         page = getIntent().getStringExtra("page");
         camera = getIntent().getStringExtra("camera");
-
-        if(camera != null){
-            ContentValues values = new ContentValues();
-            imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            cInt.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(cInt,Image_Capture_Code);
-        }
+        Bitmap photobitmap = (Bitmap) intent.getParcelableExtra("BitmapImage");
 
         if(scroll != null){
             scrollY = Integer.parseInt(scroll);
         }
+
 
         TextView title = findViewById(R.id.headerTitle);
         title.setText(formtitle);
@@ -185,31 +182,32 @@ public class FormActivity extends AppCompatActivity   {
                     { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, 0);
         }
 
-        System.out.println(FID);
-        if(intent.getStringExtra("url") != null){
-
-            final Handler handler = new Handler();
+        if(intent.getStringExtra("url" )  != null) {
             loading.setVisibility(View.VISIBLE);
             customScrollview.setVisibility(View.GONE);
             photoUri = intent.getStringExtra("url");
+            Map<String, String> selectedPhoto = new HashMap<String, String>();
             try {
-                Map<String, String> selectedPhoto = new HashMap<String, String>();
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(photoUri));
-                String image = "data:image/png;base64," + toBase64(bitmap);
-                selectedPhoto.put(elementCameraId, image);
-                if(FID == null){
-                    Log.e("Fid = 0  ", "FID" );
-                    sendcheck(selectedPhoto, "0");
-                }else {
-                    Log.e("Fid = 1  ", FID );
-                    sendcheck(selectedPhoto, FID);
-                }
-                elementPhotos.put(elementCameraId, bitmap);
+                System.out.println(" step 2");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            String image = "data:image/png;base64," + toBase64(bitmap);
+            elementPhotos_send.put(elementCameraId, image);
+            System.out.println(" step 3");
+            selectedPhoto.put(elementCameraId, image);
+            selectedPhoto.put("formId", formid);
+            selectedPhoto.put("id", "0");
+            for (Map.Entry<String, String> entry : selectedPhoto.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                insertData(key, value, formid);
+            }
+            elementPhotos.put(elementCameraId, bitmap);
+            System.out.println(" step 4");
         }
+
 
         getfile = intent.getStringExtra("filestr");
         if(getfile != null){
@@ -269,7 +267,6 @@ public class FormActivity extends AppCompatActivity   {
         cursor.close();
 
         max = groupkeyList.get(0);
-        Log.e("asfd", max );
         for (int i = 1; i < groupkeyList.size(); i++) {
             if (Integer.parseInt(groupkeyList.get(i)) > Integer.parseInt(max)) {
                 max = groupkeyList.get(i);
@@ -278,24 +275,35 @@ public class FormActivity extends AppCompatActivity   {
 
         //show the element.
         if(page != null){
+            checkpage = Integer.parseInt(page);
             showElement(Integer.parseInt(page));
         }else {
             showElement(checkpage);
         }
     }
+    public void cameraOpen(){
+            ContentValues values = new ContentValues();
+            imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cInt.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(cInt,Image_Capture_Code);
+    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == Image_Capture_Code) {
             if (resultCode == RESULT_OK) {
+                System.out.println(" step 1");
                 Intent intent = new Intent(FormActivity.this, FormActivity.class);
                 intent.putExtra("url", imageUri.toString());
                 intent.putExtra("id", formid);
                 intent.putExtra("des", formDes);
                 intent.putExtra("title", formtitle);
                 intent.putExtra("title", formtitle);
-                intent.putExtra("scroll", scroll);
-                intent.putExtra("page", page);
+                intent.putExtra("scrollphoto", getIntent().getStringExtra("scroll"));
+                intent.putExtra("scroll", String.valueOf(scrollY));
+                intent.putExtra("page", String.valueOf(checkpage));
                 startActivity(intent);
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(FormActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
@@ -305,21 +313,13 @@ public class FormActivity extends AppCompatActivity   {
 
     public String toBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream .toByteArray();
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void showElement(int i) {
-        //Go top page on scrollview
-        customScrollview.post(new Runnable() {
-            @Override
-            public void run () {
-                customScrollview.scrollTo(0, scrollY);
-            }
-        });
-
         //make the Page title
         setTextTitle();
 
@@ -332,70 +332,99 @@ public class FormActivity extends AppCompatActivity   {
                 data.add(cursor.getString(cursor.getColumnIndex("element_type")));
                 switch (cursor.getString(cursor.getColumnIndex("element_type"))){
                     case "number":
-                        NumberLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        NumberLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "europe_date":
-                        DateLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        DateLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "file":
-                        fileUpload(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        fileUpload(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step file");
                         break;
                     case "email":
-                        emailLine(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        emailLine(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "money":
-                        PriceLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        PriceLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "text":
-                        SingleLineTest(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        SingleLineTest(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "signature":
-                        SignatureMainLayout(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        SignatureMainLayout(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step signature");
                         break;
                     case "simple_name":
-                        NameLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        NameLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "media":
                         MediaLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id"))
                                 ,cursor.getString(cursor.getColumnIndex("element_media_type"))
                                 ,cursor.getString(cursor.getColumnIndex("element_media_image_src"))
                                 ,cursor.getString(cursor.getColumnIndex("element_media_pdf_src")));
+                        System.out.println(" step media");
                         break;
                     case "phone":
-                        PhoneLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        PhoneLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "date":
-                        DateLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        DateLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "select":
-                        DropDown(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getString(cursor.getColumnIndex("element_id")));
+                        DropDown(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step select");
                         break;
                     case "checkbox":
-                        CheckBoxes(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getString(cursor.getColumnIndex("element_id")));
+                        CheckBoxes(cursor.getString(cursor.getColumnIndex("element_title"))
+                                , cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step checkbox");
                         break;
                     case "radio":
-                        MultipleChoice(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getString(cursor.getColumnIndex("element_id")));
+                        MultipleChoice(cursor.getString(cursor.getColumnIndex("element_title"))
+                                , cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step radio");
                         break;
                     case "time":
-                        TimeLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        TimeLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "url":
-                        WebSiteLint(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        WebSiteLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "textarea":
-                        ParagraphText(cursor.getString(cursor.getColumnIndex("element_title")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        ParagraphText(cursor.getString(cursor.getColumnIndex("element_title"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "page_break":
                         page_break(i,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "address":
-                        AddressLint(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getInt(cursor.getColumnIndex("element_address_hideline2")),cursor.getString(cursor.getColumnIndex("element_id")));
+                        AddressLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                , cursor.getInt(cursor.getColumnIndex("element_address_hideline2"))
+                                ,cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step address");
                         break;
                     case "matrix":
-                        matrixLint(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getString(cursor.getColumnIndex("element_guidelines")), cursor.getString(cursor.getColumnIndex("element_id")));
+                        matrixLint(cursor.getString(cursor.getColumnIndex("element_title"))
+                                , cursor.getString(cursor.getColumnIndex("element_guidelines"))
+                                , cursor.getString(cursor.getColumnIndex("element_id")));
+                        System.out.println(" step matrix");
                         break;
                     case "section":
-                        SectionBreak(cursor.getString(cursor.getColumnIndex("element_title")), cursor.getString(cursor.getColumnIndex("element_guidelines")));
+                        SectionBreak(cursor.getString(cursor.getColumnIndex("element_title"))
+                                , cursor.getString(cursor.getColumnIndex("element_guidelines")));
                 }
             }while(cursor.moveToNext());
         }
@@ -415,6 +444,15 @@ public class FormActivity extends AppCompatActivity   {
                 }
             });
         }
+
+        //Go top page on scrollview
+        customScrollview.post(new Runnable() {
+            @Override
+            public void run () {
+                customScrollview.scrollTo(0, scrollY);
+            }
+        });
+
     }
 
     private void matrixLint(String title, String guidelines, final String id) {
@@ -515,7 +553,7 @@ public class FormActivity extends AppCompatActivity   {
         );
         radiogroupparams.setMargins(50,5,10, 0);
 
-        for (int i = 0; i < matrixList.size(); i ++){
+        for (int i = 0; i < matrixList.size() - 1; i ++){
             final RadioButton radioButtonView = new RadioButton(this);
             radioGroup.addView(radioButtonView, radiogroupparams);
 
@@ -744,7 +782,8 @@ public class FormActivity extends AppCompatActivity   {
 
     private void submitButton() {
         Button submitBtn =new Button(this);
-        LinearLayout.LayoutParams btnparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,160);
+//        LinearLayout.LayoutParams btnparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,160);
+        LinearLayout.LayoutParams btnparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         btnparams.setMargins(50,20,10,50);
         submitBtn.setBackground(getResources().getDrawable(R.drawable.btn_submit));
         submitBtn.setText("Submit");
@@ -929,7 +968,8 @@ public class FormActivity extends AppCompatActivity   {
 
         //define the button.
         Button uploadbtn = new Button(this);
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 140);
+//        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 140);
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         btnParams.setMargins(50,25,50,0);
         uploadbtn.setLayoutParams(btnParams);
         uploadbtn.setPadding(100,0,100,0);
@@ -962,15 +1002,9 @@ public class FormActivity extends AppCompatActivity   {
             @Override
             public void onClick(View v) {
                 scrollY = customScrollview.getScrollY();
-                Log.e("scroll", String.valueOf(scrollY));
                 Bundle bundle = new Bundle();
-                bundle.putString("id", formid);
-                bundle.putString("formDes", formDes);
-                bundle.putString("formtitle", formtitle);
                 bundle.putString("scroll", String.valueOf(scrollY));
-                bundle.putString("page", String.valueOf(checkpage));
                 elementCameraId = "file" + "[element_" + id + "]";
-                GetElementValue();
                 AddPhotoBottomDialogFragment addPhotoBottomDialogFragment = AddPhotoBottomDialogFragment.newInstance();
                 addPhotoBottomDialogFragment.setArguments(bundle);
                 addPhotoBottomDialogFragment.show(getSupportFragmentManager(),"add_photo_dialog_fragment");
@@ -1181,9 +1215,9 @@ public class FormActivity extends AppCompatActivity   {
 
             }
         });
-        if(element_data.get("element_" + dropid) != null){
-            dropdown.setSelection(Integer.parseInt(element_data.get("element_" + dropid)));
-        }
+//        if(element_data.get("element_" + dropid) != null){
+//            dropdown.setSelection(Integer.parseInt(element_data.get("element_" + dropid)));
+//        }
 
     }
 
@@ -1216,12 +1250,11 @@ public class FormActivity extends AppCompatActivity   {
 
         for(int i = 0; i < mylist.size(); i ++){
             final CheckBox checkBox = new CheckBox(this);
-            if(element_data.get("element_" + id + "_" + String.valueOf(i+1)) != null){
-                if(Integer.parseInt(element_data.get("element_" + id + "_" + String.valueOf(i+1))) == 1){
-                    checkBox.setChecked(true);
-                }
-            }
-//            element_data.put("element_" + id + "_" + String.valueOf(i+1), "0");
+//            if(element_data.get("element_" + id + "_" + String.valueOf(i+1)) != null){
+//                if(Integer.parseInt(element_data.get("element_" + id + "_" + String.valueOf(i+1))) == 1){
+//                    checkBox.setChecked(true);
+//                }
+//            }
 
             checkBox.setTag("element_" + id + "_" + String.valueOf(i+1));
             checkBox.setText(mylist.get(i));
@@ -1480,6 +1513,7 @@ public class FormActivity extends AppCompatActivity   {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
+                scrollY = 0;
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
@@ -1494,6 +1528,7 @@ public class FormActivity extends AppCompatActivity   {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
+                scrollY = 0;
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
@@ -1501,7 +1536,6 @@ public class FormActivity extends AppCompatActivity   {
                 linearLayout.removeAllViewsInLayout();
                 checkpage = showcheckbtn +1;
                 showElement(showcheckbtn +1 );
-                System.out.println(element_data);
             }
 
         });
@@ -1510,6 +1544,7 @@ public class FormActivity extends AppCompatActivity   {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
+                scrollY = 0;
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
@@ -1709,9 +1744,9 @@ public class FormActivity extends AppCompatActivity   {
             });
             radioGroup.addView(radioButtonView, radiogroupparams);
         }
-        if(element_data.get("element_" + id) != null){
-            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)))).setChecked(true);
-        }
+//        if(element_data.get("element_" + id) != null){
+//            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)))).setChecked(true);
+//        }
 
         //add the title and radiogroup
         linearLayout.addView(radiotitle);
@@ -1810,7 +1845,7 @@ public class FormActivity extends AppCompatActivity   {
         editText.setLayoutParams(editparams);
     }
 
-    private void GetElementValue() {
+    public void GetElementValue() {
         if(numberElementid != null){
             for(int i = 0; i < numberElementArray.size(); i ++) {
                 if(numberElementArray.get(i) != null){
@@ -1968,7 +2003,6 @@ public class FormActivity extends AppCompatActivity   {
                             if (result.equals("true")){
                                 loading.setVisibility(View.GONE);
                                 customScrollview.setVisibility(View.VISIBLE);
-
                                 FID = jsonObject.getString("id");
                             } else {
                             }
@@ -2020,5 +2054,7 @@ public class FormActivity extends AppCompatActivity   {
         contentValues.put(ElementValueDatabaeHelper.VCOL_4, elementformid);
         contentValues.put(ElementValueDatabaeHelper.VCOL_5, "photoData");
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
+        loading.setVisibility(View.GONE);
+        customScrollview.setVisibility(View.VISIBLE);
     }
 }
