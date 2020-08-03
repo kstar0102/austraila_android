@@ -43,7 +43,8 @@ public class SuccessActivity extends AppCompatActivity {
     private SQLiteDatabase db,VDb;
     private SQLiteOpenHelper openHelper,ElementValueopenHeloer;
     RequestQueue queue;
-    String Token, formid, upId, Vid;
+    String Token, formid, Vid;
+    static int recordId = 0;
     TextView textView;
     RelativeLayout loading;
     HashMap<String, String> formData = new HashMap<String, String>();
@@ -55,14 +56,14 @@ public class SuccessActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        Intent intent = getIntent();
-        formData = (HashMap<String, String>)intent.getSerializableExtra("elementData");
-        formid = intent.getStringExtra("FormId");
-        upId = intent.getStringExtra("UpId");
+        FormActivity.sigleElementArray.clear();
+        FormActivity.numberElementArray.clear();
+        FormActivity.emailElementArray.clear();
 
-        if(upId == null){
-            upId = "0";
-        }
+        Intent intent = getIntent();
+        formData = (HashMap<String, String>) FormActivity.element_data;
+        Log.e("elementData", String.valueOf(formData));
+        formid = intent.getStringExtra("FormId");
 
         photoData = (HashMap<String, String>) FormActivity.elementPhotos_send;
 
@@ -107,7 +108,6 @@ public class SuccessActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        FormActivity.FID = null;
                         System.out.println(response);
                         JSONObject jsonObject = null;
                         try {
@@ -117,7 +117,6 @@ public class SuccessActivity extends AppCompatActivity {
                                 Vid = jsonObject.getString("id");
                                 PsendData(Vid);
                                 Log.e("Vid value", Vid );
-                                FormActivity.elementPhotos.clear();
                                 FormActivity.elementSignature.clear();
                                 FormActivity.element_data.clear();
                             } else {
@@ -137,13 +136,25 @@ public class SuccessActivity extends AppCompatActivity {
                         Log.e("senddata Error:", String.valueOf(error));
                         loading.setVisibility(View.GONE);
                         textView.setText(getResources().getString(R.string.send_faild));
+
+                        recordId += 1;
                         for (Map.Entry<String, String> entry : formData.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();
-//                            FormActivity.elementPhotos.clear();
+                            insertData(key, value, formid);
+                        }
+
+                        for (Map.Entry<String, String> entry : photoData.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
                             insertData(key, value, formid);
                         }
                         Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
+
+                        FormActivity.elementPhotos.clear();
+                        FormActivity.elementPhotos_send.clear();
+                        FormActivity.element_filePath.clear();
+                        FormActivity.element_data.clear();
                     }
                 }){
 
@@ -158,7 +169,7 @@ public class SuccessActivity extends AppCompatActivity {
             protected Map<String, String> getParams()
             {
                 formData.put("formId", formid);
-                formData.put("id", upId);
+                formData.put("id", "0");
                 Log.e("formdata:", String.valueOf(formData));
                 return formData;
             }
@@ -183,7 +194,8 @@ public class SuccessActivity extends AppCompatActivity {
                                 loading.setVisibility(View.GONE);
                                 FormActivity.elementPhotos_send.clear();
                                 FormActivity.elementPhotos.clear();
-                                VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
+                                FormActivity.element_filePath.clear();
+
                                 textView.setText(getResources().getString(R.string.success));
                             } else {
                                 loading.setVisibility(View.GONE);
@@ -240,7 +252,8 @@ public class SuccessActivity extends AppCompatActivity {
         contentValues.put(ElementValueDatabaeHelper.VCOL_2, elementkye);
         contentValues.put(ElementValueDatabaeHelper.VCOL_3, elementValue);
         contentValues.put(ElementValueDatabaeHelper.VCOL_4, elementformid);
-        contentValues.put(ElementValueDatabaeHelper.VCOL_5, "generalData");
+        contentValues.put(ElementValueDatabaeHelper.VCOL_5, String.valueOf(recordId));
+        Log.e(String.valueOf(recordId), String.valueOf(contentValues));
         VDb.insert(ElementValueDatabaeHelper.VTABLE_NAME,null,contentValues);
     }
 }

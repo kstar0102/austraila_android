@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -34,7 +33,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.austraila.online_anytime.Common.Common;
 import com.austraila.online_anytime.LocalManage.DatabaseHelper;
-import com.austraila.online_anytime.LocalManage.ElementDatabaseHelper;
 import com.austraila.online_anytime.LocalManage.ElementValueDatabaeHelper;
 import com.austraila.online_anytime.R;
 import com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity;
@@ -60,7 +58,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
     TextView setting_name, setting_email,setting_time,sidemenu_email;
     ImageView side_menu_setting;
     Button sync_btn;
-    String useremail, username, userpass, token, result, formId,ElementValue, ElementId, Vid;
+    String useremail, username, userpass, token, result, formId,ElementValue, ElementId, ElementType;
     RequestQueue queue;
     boolean checksend = false;
     ArrayList<String> groupkeyList = new ArrayList<String>();
@@ -84,7 +82,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         openHelper = new DatabaseHelper(this);
         ElementValueHelper = new ElementValueDatabaeHelper(this);
         db = openHelper.getWritableDatabase();
-        VDb = ElementValueHelper.getReadableDatabase();
+        VDb = ElementValueHelper.getWritableDatabase();
 
         //get User information form local database.
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
@@ -108,31 +106,21 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                     formId = Vcursor.getString(Vcursor.getColumnIndex("ElementFormId"));
                     ElementId = Vcursor.getString(Vcursor.getColumnIndex("ElementId"));
                     ElementValue = Vcursor.getString(Vcursor.getColumnIndex("ElementValue"));
-                    Data.put(ElementId,ElementValue);
-                    elementdata.put(formId, Data);
-                    value.add(formId);
+                    ElementType = Vcursor.getString(Vcursor.getColumnIndex("ElementType"));
+                    String ekey = formId +"_"+ ElementType;
+                    if(!elementdata.containsKey(ekey)){
+                        Map<String, String> FData = new HashMap<String, String>();
+                        FData.put("formId", formId);
+                        elementdata.put(ekey, FData);
+                    }
+                    elementdata.get(ekey).put(ElementId, ElementValue);
+                    value.add(formId +"_"+ ElementType);
                 }while(Vcursor.moveToNext());
             }
             Vcursor.close();
         }
 
-
-//        final Cursor Pcursor = VDb.rawQuery("SELECT *FROM " + ElementValueDatabaeHelper.VTABLE_NAME
-//                + " WHERE " + ElementValueDatabaeHelper.VCOL_5 + "=?", new String[]{"photoData"});
-//        if(Pcursor != null){
-//            if (Pcursor.moveToFirst()){
-//                do{
-//                    formId = Pcursor.getString(Pcursor.getColumnIndex("ElementFormId"));
-//                    ElementId = Pcursor.getString(Pcursor.getColumnIndex("ElementId"));
-//                    ElementValue = Pcursor.getString(Pcursor.getColumnIndex("ElementValue"));
-//                    PData.put(ElementId,ElementValue);
-//                    Pelementdata.put(formId, PData);
-//
-//                }while(Pcursor.moveToNext());
-//            }
-//            Pcursor.close();
-//        }
-//        Log.e("getphotodata from local",PData.toString() );
+        System.out.println(elementdata);
 
         for(int i = 0; i < value.size(); i++){
             String key = value.get(i);
@@ -168,15 +156,15 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                     setting_time.setText(strDate);
                     Toast.makeText(SettingActivity.this, getResources().getString(R.string.noData_text), Toast.LENGTH_SHORT).show();
                     loading.setVisibility(View.GONE);
+                    checksend = true;
                 }else {
                     if(groupkeyList != null){
                         for(int i = 0; i < groupkeyList.size(); i++){
-                            sendData(groupkeyList.get(i), Vid);
+                            sendData(groupkeyList.get(i));
                         }
+                        checksend = true;
+                        deleteLocal();
                     }
-                }
-                if(checksend == true){
-                    VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
                 }
             }
         });
@@ -199,16 +187,19 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.sidebar_course:
+                        deleteLocal();
                         Intent intent_main = new Intent(SettingActivity.this, MainActivity.class);
                         startActivity(intent_main);
                         return true;
 
                     case R.id.sidebar_setting:
+                        deleteLocal();
                         Intent intent_setting = new Intent(SettingActivity.this, SettingActivity.class);
                         startActivity(intent_setting);
                         return true;
 
                     case R.id.sidebar_logout:
+                        deleteLocal();
                         Intent intent_logout = new Intent(SettingActivity.this, LoginActivity.class);
                         startActivity(intent_logout);
                         return true;
@@ -219,7 +210,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         navigationView.setItemIconTintList(null);
     }
 
-    private void sendData(final String formid, final String id) {
+    private void sendData(final String formid) {
         String url = Common.getInstance().getSaveUrl();
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -232,6 +223,9 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                             jsonObject = new JSONObject(response);
                             result = jsonObject.getString("success");
                             if (result.equals("true")){
+                                FormActivity.elementPhotos.clear();
+                                FormActivity.elementSignature.clear();
+                                FormActivity.element_data.clear();
                                 loading.setVisibility(View.GONE);
                                 setting_email.setText(useremail);
                                 setting_name.setText(username);
@@ -240,8 +234,6 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                                 String strDate = dateFormat.format(date);
                                 setting_time.setText(strDate);
-
-                                VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
 
                             } else {
                                 loading.setVisibility(View.GONE);
@@ -274,9 +266,10 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
             @Override
             protected Map<String, String> getParams()
             {
-                elementdata.get(formid).put("formId", formid);
+                String[] separated = formid.split("_");
+                elementdata.get(formid).put("formId", separated[0]);
                 elementdata.get(formid).put("id", "0");
-                Log.e("getdata from local", String.valueOf(elementdata.get(formid)));
+                Log.e("senddata local:", String.valueOf(elementdata.get(formid)));
                 return elementdata.get(formid);
             }
         };
@@ -285,6 +278,13 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
         ));
         queue = Volley.newRequestQueue(SettingActivity.this);
         queue.add(postRequest);
+    }
+
+    private void deleteLocal(){
+        if(checksend == true){
+            VDb.execSQL("delete from "+ ElementValueDatabaeHelper.VTABLE_NAME);
+            checksend = false;
+        }
     }
 
     @Override
