@@ -11,7 +11,7 @@
     <string name="email_hint">Email address</string>
     <string name="pass_hint">Password</string>
     <string name="login_button">SIGN IN</string>
-    <string name="login_forget">Forget password?</string>
+    <string name="login_forget">Forgot login details, new enrolment, or inquiry</string>
     <string name="entry_info_login">Enter your Email and Password to login</string>
     <string name="retry_info_login">Oops, can`t login! please try to login again.</string>
 

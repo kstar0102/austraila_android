@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NewRegisterActivity extends AppCompatActivity {
-    EditText register_password, register_confirm;
-    String result, useremail, userpass, userconfirm;
+    EditText usernameE, useremailE, userpassE, userconfirmE;
+    String result, useremail, userpass, userconfirm, username;
     Button register_btn;
     ProgressDialog mProgressDialog;
 
@@ -46,8 +46,10 @@ public class NewRegisterActivity extends AppCompatActivity {
         keytoken = intent.getStringExtra("token");
 
         register_btn = findViewById(R.id.register_btn);
-        register_password = findViewById(R.id.register_password);
-        register_confirm = findViewById(R.id.register_confirm);
+        usernameE = findViewById(R.id.username);
+        useremailE = findViewById(R.id.useremail);
+        userpassE = findViewById(R.id.userpass);
+        userconfirmE = findViewById(R.id.userconfirm);
 
         register_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,15 +58,26 @@ public class NewRegisterActivity extends AppCompatActivity {
             }
 
         });
-
     }
 
     private void signupProcessing() {
-        userpass = register_password.getText().toString();
-        userconfirm = register_confirm.getText().toString();
+        userpass = userpassE.getText().toString();
+        userconfirm = userconfirmE.getText().toString();
+        useremail = useremailE.getText().toString();
+        username = usernameE.getText().toString();
 
         if (TextUtils.isEmpty(userpass)) {
             Toast.makeText(NewRegisterActivity.this, "User password Field is Empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(useremail)) {
+            Toast.makeText(NewRegisterActivity.this, "User Email Field is Empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(NewRegisterActivity.this, "User Name Field is Empty!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -78,17 +91,19 @@ public class NewRegisterActivity extends AppCompatActivity {
             return;
         }
 
-        RegisterUser(userpass);
+        RegisterUser(userpass, username, useremail);
     }
 
-    private void RegisterUser(final String userpass) {
+    private void RegisterUser(final String userpassT, final String usernameT, final String useremailT) {
         mProgressDialog = new ProgressDialog(NewRegisterActivity.this);
-        mProgressDialog.setTitle("Signing...");
+        mProgressDialog.setTitle("SignUp...");
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.show();
 
-        register_password.setEnabled(false);
-        register_confirm.setEnabled(false);
+        userconfirmE.setEnabled(false);
+        userpassE.setEnabled(false);
+        usernameE.setEnabled(false);
+        useremailE.setEnabled(false);
 
         url = Common.getInstance().getSetpassUrl();
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -120,17 +135,12 @@ public class NewRegisterActivity extends AppCompatActivity {
                 }){
 
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("token", keytoken);
-                return headers;
-            }
-
-            @Override
             protected Map<String, String> getParams()
             {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("password", userpass);
+                params.put("user_password", userpassT);
+                params.put("user_fullname", usernameT);
+                params.put("user_email", useremailT);
                 return params;
             }
         };

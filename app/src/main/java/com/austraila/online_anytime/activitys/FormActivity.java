@@ -13,6 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
 import android.net.ConnectivityManager;
@@ -27,6 +28,7 @@ import android.text.InputType;
 import android.util.Base64;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -1489,11 +1491,13 @@ public class FormActivity extends AppCompatActivity   {
         linearLayout.addView(btnlinearLayout);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void TimeLint(String title, String id) {
         //define the timepicker and timetitle
         TimePicker timePicker = new TimePicker(this);
         TextView timeTitle = new TextView(this);
         final EditText editText = new EditText(this);
+
         EditTextview(editText);
         editText.setTag("element_" + id);
         timeElemntid = "element_" + id;
@@ -1501,6 +1505,11 @@ public class FormActivity extends AppCompatActivity   {
         String timeL = element_data.get(timeElemntid);
         if(timeL != null){
             editText.setText(timeL);
+        }else {
+            final Calendar myCalender = Calendar.getInstance();
+            int hour = myCalender.get(Calendar.HOUR_OF_DAY);
+            int minute = myCalender.get(Calendar.MINUTE);
+            editText.setText(hour + ":" + minute);
         }
 
         editText.setOnClickListener(new View.OnClickListener() {
@@ -1922,6 +1931,22 @@ public class FormActivity extends AppCompatActivity   {
                 webElementid = null;
             }catch (Exception e){}
         }
+    }
+
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent( event );
     }
 
 }

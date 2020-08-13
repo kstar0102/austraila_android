@@ -21,7 +21,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.austraila.online_anytime.Common.Common;
 import com.austraila.online_anytime.LocalManage.DatabaseHelper;
+import com.austraila.online_anytime.LocalManage.ElementDatabaseHelper;
+import com.austraila.online_anytime.LocalManage.ElementOptionDatabaseHelper;
+import com.austraila.online_anytime.LocalManage.FormDatabaeHelper;
 import com.austraila.online_anytime.R;
+import com.austraila.online_anytime.activitys.EachItemActivity;
 import com.austraila.online_anytime.activitys.MainActivity;
 
 import org.json.JSONException;
@@ -32,8 +36,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity{
-    private SQLiteDatabase db;
-    private SQLiteOpenHelper openHelper;
+    private SQLiteDatabase db,Db,EDb,ODb;
+    private SQLiteOpenHelper openHelper,FormopenHelper,ElementopenHelper,ElementOptionopenHelper;
     EditText email, pass;
     Button loginBtn;
     String Email, Pass, userfullname, result, user_id, token, useremail, userpass;
@@ -47,6 +51,12 @@ public class LoginActivity extends AppCompatActivity{
 
         openHelper = new DatabaseHelper(this);
         db = openHelper.getWritableDatabase();
+        Db = FormopenHelper.getWritableDatabase();
+        EDb = ElementopenHelper.getWritableDatabase();
+        ODb = ElementOptionopenHelper.getWritableDatabase();
+        FormopenHelper = new FormDatabaeHelper(this);
+        ElementopenHelper = new ElementDatabaseHelper(this);
+        ElementOptionopenHelper = new ElementOptionDatabaseHelper(this);
 
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
         if(cursor != null){
@@ -77,6 +87,9 @@ public class LoginActivity extends AppCompatActivity{
                 }else {
                     if(Email.equals(useremail) && Pass.equals(userpass)){
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        Db.execSQL("delete from "+ FormDatabaeHelper.FORMTABLE_NAME);
+                        EDb.execSQL("delete from "+ ElementDatabaseHelper.ElEMENTTABLE_NAME);
+                        ODb.execSQL("delete from "+ ElementOptionDatabaseHelper.OPTIONTABLE_NAME);
                         startActivity(intent);
                     }else{
                         ApiLogin();
@@ -103,6 +116,9 @@ public class LoginActivity extends AppCompatActivity{
                             if (result.equals("true")){
                                 insertData(Email, Pass, userfullname, token);
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                Db.execSQL("delete from "+ FormDatabaeHelper.FORMTABLE_NAME);
+                                EDb.execSQL("delete from "+ ElementDatabaseHelper.ElEMENTTABLE_NAME);
+                                ODb.execSQL("delete from "+ ElementOptionDatabaseHelper.OPTIONTABLE_NAME);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(LoginActivity.this, getResources().getString(R.string.retry_info_login), Toast.LENGTH_LONG).show();
@@ -133,7 +149,7 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     public void foregetClick(View view) {
-        Intent intent = new Intent(LoginActivity.this, ForgetActivity.class);
+        Intent intent = new Intent(LoginActivity.this, EachItemActivity.class);
         startActivity(intent);
     }
 

@@ -135,7 +135,10 @@ public class SuccessActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.e("senddata Error:", String.valueOf(error));
                         loading.setVisibility(View.GONE);
-                        textView.setText(getResources().getString(R.string.send_faild));
+                        Toast.makeText(SuccessActivity.this, getResources().getString(R.string.send_faild), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
+                        startActivity(intent);
+//                        textView.setText(getResources().getString(R.string.send_faild));
 
                         recordId += 1;
                         for (Map.Entry<String, String> entry : formData.entrySet()) {
@@ -149,7 +152,7 @@ public class SuccessActivity extends AppCompatActivity {
                             String value = entry.getValue();
                             insertData(key, value, formid);
                         }
-                        Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
 
                         FormActivity.elementPhotos.clear();
                         FormActivity.elementPhotos_send.clear();
@@ -196,7 +199,11 @@ public class SuccessActivity extends AppCompatActivity {
                                 FormActivity.elementPhotos.clear();
                                 FormActivity.element_filePath.clear();
 
-                                textView.setText(getResources().getString(R.string.success));
+//                                textView.setText(getResources().getString(R.string.success));
+                                Toast.makeText(SuccessActivity.this, getResources().getString(R.string.success), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
+                                startActivity(intent);
+
                             } else {
                                 loading.setVisibility(View.GONE);
                                 Toast.makeText(SuccessActivity.this, "Oops, Request failed.", Toast.LENGTH_LONG).show();
@@ -214,6 +221,8 @@ public class SuccessActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         loading.setVisibility(View.GONE);
                         System.out.println(error);
+                        Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
+                        startActivity(intent);
                         Toast.makeText(SuccessActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
@@ -230,6 +239,7 @@ public class SuccessActivity extends AppCompatActivity {
             {
                 photoData.put("formId", formid);
                 photoData.put("id", id);
+                photoData.put("Final", "end");
                 return photoData;
             }
         };

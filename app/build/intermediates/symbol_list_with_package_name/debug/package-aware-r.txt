@@ -1342,8 +1342,6 @@ id progress_circular
 id progress_horizontal
 id radio
 id register_btn
-id register_confirm
-id register_password
 id reload_btn
 id right
 id right_icon
@@ -1443,6 +1441,10 @@ id uniform
 id unlabeled
 id up
 id useLogo
+id userconfirm
+id useremail
+id username
+id userpass
 id view_offset_helper
 id visible
 id webview

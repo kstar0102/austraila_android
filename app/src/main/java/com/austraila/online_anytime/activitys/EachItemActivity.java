@@ -62,7 +62,7 @@ public class EachItemActivity extends AppCompatActivity {
             }
 
         });
-        webView.loadUrl("http://www.google.com");
+        webView.loadUrl("https://civilsafety.edu.au/appinquire/");
     }
 
     @SuppressLint("NewApi")

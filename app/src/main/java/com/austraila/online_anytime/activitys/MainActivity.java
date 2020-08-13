@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         getSupportActionBar().hide();
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         //defile the element
         listView = findViewById(R.id.mainListView);
@@ -127,62 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         reloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loading.setVisibility(View.VISIBLE);
-                final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
-                if(cursor != null){
-                    if (cursor.moveToFirst()){
-                        do{
-                            useremail = cursor.getString(cursor.getColumnIndex("Gmail"));
-                            userepass = cursor.getString(cursor.getColumnIndex("Password"));
-                        }while(cursor.moveToNext());
-                    }
-                    cursor.close();
-                }
-
-                String url = Common.getInstance().getBaseURL();
-                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                JSONObject jsonObject = null;
-                                try {
-                                    jsonObject = new JSONObject(response);
-                                    result = jsonObject.getString("success");
-                                    if (result.equals("true")){
-
-                                        Db.execSQL("delete from "+ FormDatabaeHelper.FORMTABLE_NAME);
-                                        EDb.execSQL("delete from "+ ElementDatabaseHelper.ElEMENTTABLE_NAME);
-                                        ODb.execSQL("delete from "+ ElementOptionDatabaseHelper.OPTIONTABLE_NAME);
-                                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                    } else {
-                                        loading.setVisibility(View.GONE);
-                                        Toast.makeText(MainActivity.this, "Oops, can't login! please try to login again.", Toast.LENGTH_LONG).show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                loading.setVisibility(View.GONE);
-                                System.out.println(error);
-                                Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
-                            }
-                        }){
-                    @Override
-                    protected Map<String, String> getParams()
-                    {
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put("email", useremail);
-                        params.put("password", userepass);
-                        return params;
-                    }
-                };
-                queue = Volley.newRequestQueue(MainActivity.this);
-                queue.add(postRequest);
+                reload();
             }
         });
 
@@ -198,6 +145,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupSearchView();
     }
 
+    private void reload() {
+        loading.setVisibility(View.VISIBLE);
+        final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
+        if(cursor != null){
+            if (cursor.moveToFirst()){
+                do{
+                    useremail = cursor.getString(cursor.getColumnIndex("Gmail"));
+                    userepass = cursor.getString(cursor.getColumnIndex("Password"));
+                }while(cursor.moveToNext());
+            }
+            cursor.close();
+        }
+
+        String url = Common.getInstance().getBaseURL();
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            result = jsonObject.getString("success");
+                            if (result.equals("true")){
+
+                                Db.execSQL("delete from "+ FormDatabaeHelper.FORMTABLE_NAME);
+                                EDb.execSQL("delete from "+ ElementDatabaseHelper.ElEMENTTABLE_NAME);
+                                ODb.execSQL("delete from "+ ElementOptionDatabaseHelper.OPTIONTABLE_NAME);
+                                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                loading.setVisibility(View.GONE);
+                                Toast.makeText(MainActivity.this, "Oops, can't login! please try to login again.", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        loading.setVisibility(View.GONE);
+                        System.out.println(error);
+                        Toast.makeText(MainActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("email", useremail);
+                params.put("password", userepass);
+                return params;
+            }
+        };
+        queue = Volley.newRequestQueue(MainActivity.this);
+        queue.add(postRequest);
+    }
 
     private void elementSave() throws JSONException {
         for (int i = 0; i < ApiList.length(); i ++){
