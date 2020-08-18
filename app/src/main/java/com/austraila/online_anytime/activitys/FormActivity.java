@@ -15,17 +15,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -272,7 +275,9 @@ public class FormActivity extends AppCompatActivity   {
         setTextTitle();
 
         // get value selected page from local database.
-        cursor = db.rawQuery("SELECT *FROM " + ElementDatabaseHelper.ElEMENTTABLE_NAME + " WHERE " + ElementDatabaseHelper.ECOL_11 + "=? AND " + ElementDatabaseHelper.ECOL_7 + "=?", new String[]{formid, String.valueOf(i)});
+        cursor = db.rawQuery("SELECT *FROM " + ElementDatabaseHelper.ElEMENTTABLE_NAME
+                + " WHERE " + ElementDatabaseHelper.ECOL_11 + "=? AND "
+                + ElementDatabaseHelper.ECOL_7 + "=?", new String[]{formid, String.valueOf(i)});
 
         //UI dynamic generate
         if (cursor.moveToFirst()){
@@ -358,6 +363,8 @@ public class FormActivity extends AppCompatActivity   {
                                 ,cursor.getString(cursor.getColumnIndex("element_id")));
                         break;
                     case "matrix":
+                        System.out.println(cursor.getString(cursor.getColumnIndex("element_title")));
+                        System.out.println(cursor.getString(cursor.getColumnIndex("element_id")));
                         matrixLint(cursor.getString(cursor.getColumnIndex("element_title"))
                                 , cursor.getString(cursor.getColumnIndex("element_guidelines"))
                                 , cursor.getString(cursor.getColumnIndex("element_id")));
@@ -394,12 +401,14 @@ public class FormActivity extends AppCompatActivity   {
         });
     }
 
+    @SuppressLint("ResourceAsColor")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void matrixLint(String title, String guidelines, final String id) {
         //get value for matrix from local database
         ArrayList<String> matrixList = new ArrayList<String>();
         Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME
                 + " WHERE " + ElementOptionDatabaseHelper.OCOL_2 + "=? AND "
-                + ElementOptionDatabaseHelper.OCOL_3 + "=?" , new String[]{formid, id});
+                + ElementOptionDatabaseHelper.OCOL_3 + "=? ORDER BY " + ElementOptionDatabaseHelper.OCOL_6 + " ASC", new String[]{formid, id});
 
         if(cursor.moveToFirst()){
             do{
@@ -415,25 +424,31 @@ public class FormActivity extends AppCompatActivity   {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        matrixParams.setMargins(50,20,50,5);
+        matrixParams.setMargins(50,0,50,2);
         LinearLayout matrixLayout = new LinearLayout(this);
         matrixLayout.setOrientation(LinearLayout.HORIZONTAL);
         matrixLayout.setLayoutParams(matrixParams);
+        if ((Integer.parseInt(id) % 2) == 0) {
+            matrixLayout.setBackground(getResources().getDrawable(R.drawable.matrix_border));
+        }else {
+            matrixLayout.setBackground(getResources().getDrawable(R.drawable.matrix_border_fo));
+        }
 
         // define the title field on matrix
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(300, LinearLayout.LayoutParams.WRAP_CONTENT);
-        titleParams.setMargins(0,0,10,0);
+        titleParams.setMargins(0,10,0,0);
         LinearLayout titlelayout = new LinearLayout(this);
         titlelayout.setOrientation(LinearLayout.VERTICAL);
         titlelayout.setWeightSum(1);
+        titlelayout.setGravity(View.TEXT_ALIGNMENT_CENTER);
         titlelayout.setLayoutParams(titleParams);
 
         //define the radio group on matrix
-        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(900, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         itemParams.setMargins(10,0,0,0);
         LinearLayout itemLayout = new LinearLayout(this);
         itemLayout.setLayoutParams(itemParams);
-        itemLayout.setWeightSum(1);
+        itemLayout.setWeightSum(3);
         itemLayout.setOrientation(LinearLayout.HORIZONTAL);
 
         matrixLayout.addView(titlelayout);
@@ -448,19 +463,21 @@ public class FormActivity extends AppCompatActivity   {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        headLayoutParam.setMargins(50,20,50,10);
+        headLayoutParam.setMargins(50,0,50,5);
         headLayout.setLayoutParams(headLayoutParam);
         headLayout.setOrientation(LinearLayout.HORIZONTAL);
+        headLayout.setBackground(getResources().getDrawable(R.drawable.textlines));
         LinearLayout empty = new LinearLayout(this);
         LinearLayout headtitle = new LinearLayout(this);
+        empty.setWeightSum(1);
+        headtitle.setWeightSum(3);
         LinearLayout.LayoutParams emptyParam = new LinearLayout.LayoutParams(
-                350, LinearLayout.LayoutParams.WRAP_CONTENT
+                300, LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        emptyParam.setMargins(10,0,0,0);
+        emptyParam.setMargins(0,0,0,0);
         empty.setLayoutParams(emptyParam);
         headLayout.addView(empty);
         headLayout.addView(headtitle);
-
 
         if(guidelines.isEmpty()){
             matrixTitle.setVisibility(View.GONE);
@@ -469,19 +486,38 @@ public class FormActivity extends AppCompatActivity   {
             linearLayout.addView(matrixTitle);
             linearLayout.addView(headLayout);
 
+            LinearLayout.LayoutParams textparams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,1.0f
+            );
+
+
             for(int i = 0; i < matrixList.size(); i ++){
                 TextView itemtext = new TextView(this);
-                titleTextview(itemtext);
+                itemtext.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                itemtext.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+
+                // set margin in textview
+                textparams.setMargins(5, 1, 5, 1);
+                itemtext.setLayoutParams(textparams);
                 itemtext.setTextSize(getResources().getDimension(R.dimen.matrix_normal));
-                itemtext.setWidth(140);
                 itemtext.setText(matrixList.get(i));
                 headtitle.addView(itemtext);
             }
         }
-
         TextView titleText = new TextView(this);
-        titleTextview(titleText);
+        LinearLayout.LayoutParams textparams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        titleText.setTextSize(getResources().getDimension(R.dimen.textsize_header));
+        titleText.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        // set margin in textview
+        textparams.setMargins(0, 15, 10, 5);
+        titleText.setLayoutParams(textparams);
         titleText.setTextSize(getResources().getDimension(R.dimen.textsize_normal));
+        titleText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         titleText.setText(title);
         titlelayout.addView(titleText);
 
@@ -490,26 +526,28 @@ public class FormActivity extends AppCompatActivity   {
         radioGroup.setOrientation(LinearLayout.HORIZONTAL);
         radioGroup.setTag("element_" + id);
         LinearLayout.LayoutParams radiogroupparams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        radiogroupparams.setMargins(50,5,10, 0);
+        radiogroupparams.setMargins(5,5,5, 0);
 
-        for (int i = 0; i < matrixList.size() - 1; i ++){
+        for (int i = 0; i < matrixList.size(); i ++){
             final RadioButton radioButtonView = new RadioButton(this);
+            radiogroupparams.weight = 1;
+            radioButtonView.setLayoutParams(radiogroupparams);
             radioGroup.addView(radioButtonView, radiogroupparams);
 
             radioButtonView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int idx = radioGroup.indexOfChild(radioButtonView);
-                    element_data.put("element_" + id, String.valueOf(idx));
+                    element_data.put("element_" + id, String.valueOf(idx + 1));
 //                    Toast.makeText(FormActivity.this, radioButtonView.getText().toString(), Toast.LENGTH_LONG).show();
                 }
             });
         }
         if(element_data.get("element_" + id) != null){
-            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)))).setChecked(true);
+            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)) - 1)).setChecked(true);
         }
 
         itemLayout.addView(radioGroup);
@@ -815,6 +853,17 @@ public class FormActivity extends AppCompatActivity   {
             public boolean onTouch(View v, MotionEvent event) {
                 //The following code is to disable  scroll view on gesture touchListener.
                 customScrollview.setEnableScrolling(false);
+                final Toast toast = Toast.makeText(getApplicationContext(), "press save to continue", Toast.LENGTH_SHORT);
+                toast.show();
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast.cancel();
+                    }
+                }, 1000);
+
                 return false;
             }});
 
@@ -842,6 +891,7 @@ public class FormActivity extends AppCompatActivity   {
         if(sigBit != null){
             imageView.setImageBitmap(sigBit);
             signatureView.setVisibility(View.GONE);
+
         }else {
             imageView.setVisibility(View.GONE);
         }
@@ -1160,7 +1210,8 @@ public class FormActivity extends AppCompatActivity   {
 
         Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME
                 + " WHERE " + ElementOptionDatabaseHelper.OCOL_2 + "=? AND " + ElementOptionDatabaseHelper.OCOL_3
-                + "=?" , new String[]{formid, id});
+                + "=? ORDER BY " + ElementOptionDatabaseHelper.OCOL_6 + " ASC" , new String[]{formid, id});
+
 
         if(cursor.moveToFirst()){
             do{
@@ -1448,10 +1499,10 @@ public class FormActivity extends AppCompatActivity   {
             @Override
             public void onClick(View v) {
                 scrollY = 0;
+                GetElementValue();
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
-                GetElementValue();
                 linearLayout.removeAllViewsInLayout();
                 checkpage = showcheckbtn +1;
                 showElement(showcheckbtn +1 );
@@ -1463,10 +1514,10 @@ public class FormActivity extends AppCompatActivity   {
             @Override
             public void onClick(View v) {
                 scrollY = 0;
+                GetElementValue();
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
-                GetElementValue();
                 linearLayout.removeAllViewsInLayout();
                 checkpage = showcheckbtn +1;
                 showElement(showcheckbtn +1 );
@@ -1479,10 +1530,10 @@ public class FormActivity extends AppCompatActivity   {
             @Override
             public void onClick(View v) {
                 scrollY = 0;
+                GetElementValue();
                 sigleElementArray.clear();
                 numberElementArray.clear();
                 emailElementArray.clear();
-                GetElementValue();
                 linearLayout.removeAllViewsInLayout();
                 checkpage = showcheckbtn - 1;
                 showElement(showcheckbtn - 1 );
@@ -1638,7 +1689,9 @@ public class FormActivity extends AppCompatActivity   {
 
         ArrayList<String> mylist = new ArrayList<String>();
         Cursor cursor = ODb.rawQuery("SELECT *FROM " + ElementOptionDatabaseHelper.OPTIONTABLE_NAME + " WHERE "
-                + ElementOptionDatabaseHelper.OCOL_2 + "=? AND " + ElementOptionDatabaseHelper.OCOL_3 + "=?" , new String[]{formid, id});
+                + ElementOptionDatabaseHelper.OCOL_2 + "=? AND " + ElementOptionDatabaseHelper.OCOL_3 + "=? ORDER BY "
+                + ElementOptionDatabaseHelper.OCOL_6 + " ASC" , new String[]{formid, id});
+
 
         if(cursor.moveToFirst()){
             do{
@@ -1679,14 +1732,14 @@ public class FormActivity extends AppCompatActivity   {
                 @Override
                 public void onClick(View v) {
                     int idx = radioGroup.indexOfChild(radioButtonView);
-                    element_data.put("element_" + id, String.valueOf(idx));
+                    element_data.put("element_" + id, String.valueOf(idx + 1));
 //                    Toast.makeText(FormActivity.this, String.valueOf(idx), Toast.LENGTH_LONG).show();
                 }
             });
             radioGroup.addView(radioButtonView, radiogroupparams);
         }
         if(element_data.get("element_" + id) != null){
-            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)))).setChecked(true);
+            ((RadioButton)radioGroup.getChildAt(Integer.parseInt(element_data.get("element_" + id)) - 1)).setChecked(true);
         }
 
         //add the title and radiogroup
@@ -1802,12 +1855,11 @@ public class FormActivity extends AppCompatActivity   {
 
         if(singleElementid != null){
             for(int i = 0; i < sigleElementArray.size(); i ++){
-                try{
+                try {
                     EditText singleeditText = linearLayout.findViewWithTag(sigleElementArray.get(i));
                     element_data.put(sigleElementArray.get(i), singleeditText.getText().toString());
                     linearLayout.removeView(singleeditText);
-                }catch (Exception e){
-                }
+                }catch (Exception e){}
             }
         }
 

@@ -25,8 +25,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.android.volley.AuthFailureError;
@@ -64,6 +67,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
@@ -111,6 +116,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         EDb = ElementopenHelper.getWritableDatabase();
         ODb = ElementOptionopenHelper.getWritableDatabase();
 
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                Log.e("back", "back" );
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        };
+        new MainActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
         Cursor cursor = Db.rawQuery("SELECT *FROM " + FormDatabaeHelper.FORMTABLE_NAME,  null);
         if (cursor.moveToFirst()) // data?
             checksum = cursor.getString(cursor.getColumnIndex("Fchecksum"));
@@ -143,6 +158,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sideMenu_mangement();
         listView.setTextFilterEnabled(true);
         setupSearchView();
+    }
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(MainActivity.this, "Sorry, You can't go back to the form.", Toast.LENGTH_LONG).show();
     }
 
     private void reload() {

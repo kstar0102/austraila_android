@@ -679,6 +679,7 @@ color error_color_material_dark
 color error_color_material_light
 color foreground_material_dark
 color foreground_material_light
+color grey
 color half_transfer
 color highlighted_text_material_dark
 color highlighted_text_material_light
@@ -1124,6 +1125,8 @@ drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable logout
 drawable main_doc_image
+drawable matrix_border
+drawable matrix_border_fo
 drawable menu
 drawable mtrl_snackbar_background
 drawable mtrl_tabs_default_indicator
@@ -1143,6 +1146,7 @@ drawable notify_panel_notification_icon_bg
 drawable profile_icon
 drawable reload
 drawable setting_icon
+drawable textlines
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
 id ALT

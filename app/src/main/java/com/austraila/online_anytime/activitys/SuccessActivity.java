@@ -99,7 +99,6 @@ public class SuccessActivity extends AppCompatActivity {
             }
         });
         sendcheck();
-
     }
 
     private void sendcheck() {
@@ -127,6 +126,8 @@ public class SuccessActivity extends AppCompatActivity {
                             loading.setVisibility(View.GONE);
                             e.printStackTrace();
                             Toast.makeText(SuccessActivity.this, "Request faild", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
+                            startActivity(intent);
                         }
                     }
                 },
@@ -138,7 +139,7 @@ public class SuccessActivity extends AppCompatActivity {
                         Toast.makeText(SuccessActivity.this, getResources().getString(R.string.send_faild), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
                         startActivity(intent);
-//                        textView.setText(getResources().getString(R.string.send_faild));
+                        textView.setText(getResources().getString(R.string.send_faild));
 
                         recordId += 1;
                         for (Map.Entry<String, String> entry : formData.entrySet()) {
@@ -158,6 +159,7 @@ public class SuccessActivity extends AppCompatActivity {
                         FormActivity.elementPhotos_send.clear();
                         FormActivity.element_filePath.clear();
                         FormActivity.element_data.clear();
+                        FormActivity.elementSignature.clear();
                     }
                 }){
 
@@ -199,7 +201,7 @@ public class SuccessActivity extends AppCompatActivity {
                                 FormActivity.elementPhotos.clear();
                                 FormActivity.element_filePath.clear();
 
-//                                textView.setText(getResources().getString(R.string.success));
+                                textView.setText(getResources().getString(R.string.success));
                                 Toast.makeText(SuccessActivity.this, getResources().getString(R.string.success), Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
                                 startActivity(intent);

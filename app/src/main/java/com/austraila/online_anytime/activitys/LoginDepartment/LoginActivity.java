@@ -50,13 +50,13 @@ public class LoginActivity extends AppCompatActivity{
         getSupportActionBar().hide();
 
         openHelper = new DatabaseHelper(this);
+        FormopenHelper = new FormDatabaeHelper(this);
+        ElementopenHelper = new ElementDatabaseHelper(this);
+        ElementOptionopenHelper = new ElementOptionDatabaseHelper(this);
         db = openHelper.getWritableDatabase();
         Db = FormopenHelper.getWritableDatabase();
         EDb = ElementopenHelper.getWritableDatabase();
         ODb = ElementOptionopenHelper.getWritableDatabase();
-        FormopenHelper = new FormDatabaeHelper(this);
-        ElementopenHelper = new ElementDatabaseHelper(this);
-        ElementOptionopenHelper = new ElementOptionDatabaseHelper(this);
 
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
         if(cursor != null){
@@ -85,18 +85,19 @@ public class LoginActivity extends AppCompatActivity{
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.entry_info_login), Toast.LENGTH_SHORT).show();
                     return;
                 }else {
-                    if(Email.equals(useremail) && Pass.equals(userpass)){
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        Db.execSQL("delete from "+ FormDatabaeHelper.FORMTABLE_NAME);
-                        EDb.execSQL("delete from "+ ElementDatabaseHelper.ElEMENTTABLE_NAME);
-                        ODb.execSQL("delete from "+ ElementOptionDatabaseHelper.OPTIONTABLE_NAME);
-                        startActivity(intent);
-                    }else{
                         ApiLogin();
-                    }
                 }
             }
         });
+    }
+
+    private void locallogin(){
+        if(Email.equals(useremail) && Pass.equals(userpass)){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+        }else {
+            Toast.makeText(LoginActivity.this, "It is currently offline or wrong information.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void ApiLogin() {
@@ -131,8 +132,7 @@ public class LoginActivity extends AppCompatActivity{
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        System.out.println(error);
-                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
+                        locallogin();
                     }
                 }){
             @Override

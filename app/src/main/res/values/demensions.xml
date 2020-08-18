@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="textsize_title">6dp</dimen>
-    <dimen name="textsize_header">4dp</dimen>
-    <dimen name="textsize_normal">3dp</dimen>
-    <dimen name="matrix_normal">2dp</dimen>
+    <dimen name="textsize_header">5dp</dimen>
+    <dimen name="textsize_normal">4dp</dimen>
+    <dimen name="matrix_normal">3dp</dimen>
 
     <dimen name="dp_8">8dp</dimen>
     <dimen name="dp_10">10dp</dimen>
