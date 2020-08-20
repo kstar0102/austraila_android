@@ -52,7 +52,7 @@
 25-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:19:22-79
 26
 27    <application
-27-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:22:5-52:19
+27-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:22:5-63:19
 28        android:allowBackup="true"
 28-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:23:9-35
 29        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
@@ -78,81 +78,107 @@
 40            android:value="@integer/google_play_services_version" />
 40-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:33:13-66
 41
-42        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity" />
-42-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:35:9-77
-42-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:35:19-74
-43        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.ForgetActivity" />
-43-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:36:9-78
-43-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:36:19-75
-44        <activity android:name="com.austraila.online_anytime.activitys.MainActivity" />
-44-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:37:9-60
-44-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:37:19-57
-45        <activity android:name="com.austraila.online_anytime.activitys.EachItemActivity" />
-45-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:38:9-64
-45-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:38:19-61
-46        <activity android:name="com.austraila.online_anytime.activitys.FormActivity" />
-46-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:39:9-60
-46-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:39:19-57
-47        <activity android:name="com.austraila.online_anytime.activitys.SettingActivity" />
-47-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:40:9-62
-47-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:40:19-60
-48        <activity android:name="com.austraila.online_anytime.activitys.cameraActivity.CameraActivity" />
-48-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:41:9-77
-48-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:41:19-74
-49        <activity android:name="com.austraila.online_anytime.activitys.SuccessActivity" />
-49-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:42:9-62
-49-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:42:19-60
-50        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.CodeCheckActivity" />
-50-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:43:9-80
-50-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:43:19-78
-51        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.NewRegisterActivity" />
-51-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:44:9-82
-51-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:44:19-80
-52        <activity android:name="com.austraila.online_anytime.activitys.SplashActivity" >
-52-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:45:9-51:20
-52-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:45:19-59
-53            <intent-filter>
-53-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:46:13-50:29
-54                <action android:name="android.intent.action.MAIN" />
-54-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:47:17-69
-54-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:47:25-66
-55
-56                <category android:name="android.intent.category.LAUNCHER" />
-56-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:49:17-77
-56-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:49:27-74
-57            </intent-filter>
-58        </activity>
-59        <activity
-59-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:23:9-27:75
-60            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
-60-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:24:13-93
-61            android:excludeFromRecents="true"
-61-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:25:13-46
-62            android:exported="false"
-62-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:26:13-37
-63            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-63-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:27:13-72
-64        <!--
-65            Service handling Google Sign-In user revocation. For apps that do not integrate with
-66            Google Sign-In, this service will never be started.
-67        -->
-68        <service
-68-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:33:9-36:110
-69            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
-69-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:34:13-89
-70            android:exported="true"
-70-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:35:13-36
-71            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" />
-71-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:36:13-107
+42        <activity
+42-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:35:9-37:52
+43            android:name="com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity"
+43-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:35:19-74
+44            android:label="@string/app_name"
+44-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:36:13-45
+45            android:screenOrientation="nosensor" />
+45-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:37:13-49
+46        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.ForgetActivity" />
+46-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:39:9-78
+46-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:39:19-75
+47        <activity
+47-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:40:9-41:51
+48            android:name="com.austraila.online_anytime.activitys.MainActivity"
+48-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:40:19-57
+49            android:screenOrientation="nosensor" />
+49-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:41:13-49
+50        <activity
+50-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:42:9-43:51
+51            android:name="com.austraila.online_anytime.activitys.EachItemActivity"
+51-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:42:19-61
+52            android:screenOrientation="nosensor" />
+52-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:43:13-49
+53        <activity
+53-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:44:9-45:51
+54            android:name="com.austraila.online_anytime.activitys.FormActivity"
+54-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:44:19-57
+55            android:screenOrientation="nosensor" />
+55-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:45:13-49
+56        <activity
+56-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:46:9-47:51
+57            android:name="com.austraila.online_anytime.activitys.SettingActivity"
+57-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:46:19-60
+58            android:screenOrientation="nosensor" />
+58-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:47:13-49
+59        <activity android:name="com.austraila.online_anytime.activitys.cameraActivity.CameraActivity" />
+59-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:48:9-77
+59-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:48:19-74
+60        <activity
+60-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:49:9-50:51
+61            android:name="com.austraila.online_anytime.activitys.SuccessActivity"
+61-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:49:19-60
+62            android:screenOrientation="nosensor" />
+62-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:50:13-49
+63        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.CodeCheckActivity" />
+63-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:51:9-80
+63-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:51:19-78
+64        <activity
+64-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:52:9-53:51
+65            android:name="com.austraila.online_anytime.activitys.LoginDepartment.NewRegisterActivity"
+65-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:52:19-80
+66            android:screenOrientation="nosensor" />
+66-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:53:13-49
+67        <activity
+67-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:55:9-62:20
+68            android:name="com.austraila.online_anytime.activitys.SplashActivity"
+68-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:55:19-59
+69            android:screenOrientation="nosensor" >
+69-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:56:13-49
+70            <intent-filter>
+70-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:57:13-61:29
+71                <action android:name="android.intent.action.MAIN" />
+71-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:58:17-69
+71-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:58:25-66
 72
-73        <activity
-73-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:23:9-26:75
-74            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-74-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:24:13-79
-75            android:exported="false"
-75-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:25:13-37
-76            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-76-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:26:13-72
-77    </application>
-78
-79</manifest>
+73                <category android:name="android.intent.category.LAUNCHER" />
+73-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:60:17-77
+73-->F:\working\now_working\austraila_android\app\src\main\AndroidManifest.xml:60:27-74
+74            </intent-filter>
+75        </activity>
+76        <activity
+76-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:23:9-27:75
+77            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+77-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:24:13-93
+78            android:excludeFromRecents="true"
+78-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:25:13-46
+79            android:exported="false"
+79-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:26:13-37
+80            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+80-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:27:13-72
+81        <!--
+82            Service handling Google Sign-In user revocation. For apps that do not integrate with
+83            Google Sign-In, this service will never be started.
+84        -->
+85        <service
+85-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:33:9-36:110
+86            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+86-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:34:13-89
+87            android:exported="true"
+87-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:35:13-36
+88            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" />
+88-->[com.google.android.gms:play-services-auth:16.0.0] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\fad09423f8f6e93085b68d8af470bebc\jetified-play-services-auth-16.0.0\AndroidManifest.xml:36:13-107
+89
+90        <activity
+90-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:23:9-26:75
+91            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+91-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:24:13-79
+92            android:exported="false"
+92-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:25:13-37
+93            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+93-->[com.google.android.gms:play-services-base:15.0.1] C:\Users\Hadess\.gradle\caches\transforms-2\files-2.1\749fe29402c5f767c2908aa0ed5d835d\jetified-play-services-base-15.0.1\AndroidManifest.xml:26:13-72
+94    </application>
+95
+96</manifest>

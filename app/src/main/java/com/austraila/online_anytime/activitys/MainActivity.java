@@ -14,6 +14,7 @@ import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -72,7 +73,7 @@ import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
-    ImageView reloadBtn;
+    TextView reloadBtn;
     private DrawerLayout drawer;
     private NavigationView navigation;
     private SQLiteDatabase db,Db,EDb,ODb;
@@ -144,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         reloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reload();
+//                reload();
+                finishAffinity();
             }
         });
 
@@ -159,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listView.setTextFilterEnabled(true);
         setupSearchView();
     }
+
+
     @Override
     public void onBackPressed() {
         Toast.makeText(MainActivity.this, "Sorry, You can't go back to the form.", Toast.LENGTH_LONG).show();

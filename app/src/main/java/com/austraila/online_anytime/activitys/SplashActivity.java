@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,9 +30,8 @@ public class SplashActivity extends AppCompatActivity {
         openHelper = new DatabaseHelper(this);
         db = openHelper.getWritableDatabase();
 
+
         final Cursor cursor = db.rawQuery("SELECT *FROM " + DatabaseHelper.TABLE_NAME,  null);
-
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

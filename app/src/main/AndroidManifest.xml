@@ -32,17 +32,28 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".activitys.LoginDepartment.LoginActivity" />
+        <activity android:name=".activitys.LoginDepartment.LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="nosensor" />
+
         <activity android:name=".activitys.LoginDepartment.ForgetActivity" />
-        <activity android:name=".activitys.MainActivity" />
-        <activity android:name=".activitys.EachItemActivity" />
-        <activity android:name=".activitys.FormActivity" />
-        <activity android:name=".activitys.SettingActivity"/>
+        <activity android:name=".activitys.MainActivity"
+            android:screenOrientation="nosensor"/>
+        <activity android:name=".activitys.EachItemActivity"
+            android:screenOrientation="nosensor"/>
+        <activity android:name=".activitys.FormActivity"
+            android:screenOrientation="nosensor"/>
+        <activity android:name=".activitys.SettingActivity"
+            android:screenOrientation="nosensor"/>
         <activity android:name=".activitys.cameraActivity.CameraActivity" />
-        <activity android:name=".activitys.SuccessActivity"/>
+        <activity android:name=".activitys.SuccessActivity"
+            android:screenOrientation="nosensor"/>
         <activity android:name=".activitys.LoginDepartment.CodeCheckActivity"/>
-        <activity android:name=".activitys.LoginDepartment.NewRegisterActivity"/>
-        <activity android:name=".activitys.SplashActivity">
+        <activity android:name=".activitys.LoginDepartment.NewRegisterActivity"
+            android:screenOrientation="nosensor"/>
+
+        <activity android:name=".activitys.SplashActivity"
+            android:screenOrientation="nosensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

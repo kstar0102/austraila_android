@@ -39,17 +39,34 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.LoginDepartment.LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="nosensor" />
         <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.ForgetActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.MainActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.EachItemActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.FormActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.SettingActivity" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.MainActivity"
+            android:screenOrientation="nosensor" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.EachItemActivity"
+            android:screenOrientation="nosensor" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.FormActivity"
+            android:screenOrientation="nosensor" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.SettingActivity"
+            android:screenOrientation="nosensor" />
         <activity android:name="com.austraila.online_anytime.activitys.cameraActivity.CameraActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.SuccessActivity" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.SuccessActivity"
+            android:screenOrientation="nosensor" />
         <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.CodeCheckActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.LoginDepartment.NewRegisterActivity" />
-        <activity android:name="com.austraila.online_anytime.activitys.SplashActivity" >
+        <activity
+            android:name="com.austraila.online_anytime.activitys.LoginDepartment.NewRegisterActivity"
+            android:screenOrientation="nosensor" />
+        <activity
+            android:name="com.austraila.online_anytime.activitys.SplashActivity"
+            android:screenOrientation="nosensor" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

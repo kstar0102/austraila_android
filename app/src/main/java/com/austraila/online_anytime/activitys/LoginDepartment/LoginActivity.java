@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity{
         Intent intent = new Intent(LoginActivity.this, EachItemActivity.class);
         startActivity(intent);
     }
-
+    
     public void insertData(String fGmail,String fPassword, String fusername, String token){
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.COL_2,fGmail);
