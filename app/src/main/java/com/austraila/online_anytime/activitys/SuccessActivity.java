@@ -190,7 +190,7 @@ public class SuccessActivity extends AppCompatActivity {
                     @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onResponse(String response) {
-                        System.out.println(response);
+                        Log.e("server request", response );
                         JSONObject jsonObject = null;
                         try {
                             jsonObject = new JSONObject(response);

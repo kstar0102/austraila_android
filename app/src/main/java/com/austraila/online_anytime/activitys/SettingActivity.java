@@ -269,7 +269,7 @@ public class SettingActivity extends AppCompatActivity implements NavigationView
                 String[] separated = formid.split("_");
                 elementdata.get(formid).put("formId", separated[0]);
                 elementdata.get(formid).put("id", "0");
-//                elementdata.get(formid).put("final", "end");
+                elementdata.get(formid).put("Final", "end");
                 Log.e("senddata local:", String.valueOf(elementdata.get(formid)));
                 return elementdata.get(formid);
             }

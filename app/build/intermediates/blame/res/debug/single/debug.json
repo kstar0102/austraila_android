@@ -120,12 +120,12 @@
         "source": "F:\\working\\now_working\\austraila_android\\app\\src\\main\\res\\drawable\\logout.png"
     },
     {
-        "merged": "F:\\working\\now_working\\austraila_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable_app_logo.png.flat",
-        "source": "F:\\working\\now_working\\austraila_android\\app\\src\\main\\res\\drawable\\app_logo.png"
-    },
-    {
         "merged": "F:\\working\\now_working\\austraila_android\\app\\build\\intermediates\\res\\merged\\debug\\layout_activity_codecheck.xml.flat",
         "source": "F:\\working\\now_working\\austraila_android\\app\\src\\main\\res\\layout\\activity_codecheck.xml"
+    },
+    {
+        "merged": "F:\\working\\now_working\\austraila_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable_app_logo.png.flat",
+        "source": "F:\\working\\now_working\\austraila_android\\app\\src\\main\\res\\drawable\\app_logo.png"
     },
     {
         "merged": "F:\\working\\now_working\\austraila_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable_btn_submit.xml.flat",

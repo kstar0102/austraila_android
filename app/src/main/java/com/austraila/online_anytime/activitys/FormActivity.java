@@ -1036,14 +1036,14 @@ public class FormActivity extends AppCompatActivity   {
         dateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            picker = new DatePickerDialog(FormActivity.this,
-                    new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            dateEditText.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                        }
-                    }, year, month, day);
-            picker.show();
+                picker = new DatePickerDialog(FormActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                dateEditText.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                            }
+                        }, year, month, day);
+                picker.show();
             }
         });
         linearLayout.addView(dateEditText);

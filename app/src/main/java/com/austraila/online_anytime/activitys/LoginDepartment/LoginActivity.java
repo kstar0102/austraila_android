@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity{
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.entry_info_login), Toast.LENGTH_SHORT).show();
                     return;
                 }else {
-                        ApiLogin();
+                    ApiLogin();
                 }
             }
         });
@@ -132,7 +132,9 @@ public class LoginActivity extends AppCompatActivity{
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        System.out.println(error);
                         locallogin();
+                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.offline_text), Toast.LENGTH_LONG).show();
                     }
                 }){
             @Override
